@@ -1,0 +1,649 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>英単語ポケット ― まいにち豆つづり</title>
+<meta name="description" content="中学校・高校で習う英単語と英熟語を、忘れたころに復習できる仕組みで毎日少しずつ覚える学習アプリ。">
+<link rel="icon" href="icon.png">
+<link rel="apple-touch-icon" href="icon-180.png">
+<style>
+:root{
+  --paper:#f7f0dd; --card:#fffdf6; --ink:#3a3227; --sub:#8a7a5f;
+  --red:#b5452f; --red-d:#93371f; --gold:#e0a100; --green:#3d8b4f;
+  --blue:#2f6fb5; --line:#e2d5b8; --shadow:0 4px 14px rgba(90,60,20,.16);
+}
+*{box-sizing:border-box; -webkit-tap-highlight-color:transparent}
+html,body{margin:0;padding:0}
+body{
+  font-family:"Hiragino Maru Gothic ProN","Hiragino Sans","Noto Sans JP",sans-serif;
+  background:var(--paper) radial-gradient(circle at 15% 0%, #fdf6e0 0, transparent 420px);
+  color:var(--ink); min-height:100vh; padding-bottom:34px;
+}
+button{font-family:inherit; cursor:pointer}
+.wrap{max-width:560px;margin:0 auto;padding:0 14px}
+/* ---------- title ---------- */
+.title-area{text-align:center;padding:26px 6px 6px}
+.logo-beans{font-size:15px;letter-spacing:.6em;color:var(--gold);margin-bottom:2px}
+h1.app-title{margin:0;font-size:34px;letter-spacing:.04em;color:var(--red-d);font-weight:900}
+.app-sub{margin:4px 0 0;color:var(--sub);font-size:14px}
+.title-books{display:flex;justify-content:center;gap:5px;margin:14px 0 4px}
+.title-books span{display:block;width:30px;height:42px;border-radius:3px 7px 7px 3px;box-shadow:var(--shadow);position:relative}
+.title-books span::after{content:"";position:absolute;left:4px;top:0;bottom:0;width:3px;background:rgba(255,255,255,.55);border-radius:2px}
+.tb1{background:#b5452f}.tb2{background:#e0a100}.tb3{background:#3d8b4f}.tb4{background:#2f6fb5}.tb5{background:#7a4fa3}.tb6{background:#d2691e}.tb7{background:#00838f}
+/* ---------- cards & panels ---------- */
+.panel{background:var(--card);border:1px solid var(--line);border-radius:16px;box-shadow:var(--shadow);padding:16px;margin:14px 0}
+.panel h2{margin:0 0 10px;font-size:17px;color:var(--red-d)}
+.today-num{font-size:44px;font-weight:900;color:var(--red);line-height:1}
+.today-label{color:var(--sub);font-size:13px;margin-top:2px}
+.progress{height:14px;background:#efe4c8;border-radius:8px;overflow:hidden;margin:10px 0 4px}
+.progress>i{display:block;height:100%;background:linear-gradient(90deg,var(--gold),var(--red));border-radius:8px;transition:width .4s}
+.streak{display:flex;gap:10px;flex-wrap:wrap;margin-top:8px}
+.streak .chip{background:#fdf3d7;border:1px solid var(--line);border-radius:999px;padding:5px 12px;font-size:13px}
+.streak .chip b{color:var(--red-d);font-size:15px}
+.btn{display:block;width:100%;border:none;border-radius:14px;padding:15px;font-size:18px;font-weight:800;background:var(--red);color:#fff;box-shadow:0 4px 0 var(--red-d);margin:10px 0}
+.btn:active{transform:translateY(3px);box-shadow:0 1px 0 var(--red-d)}
+.btn.gold{background:var(--gold);box-shadow:0 4px 0 #a97c00;color:#4a3500}
+.btn.blue{background:var(--blue);box-shadow:0 4px 0 #1f4c7d}
+.btn.ghost{background:#fff;color:var(--red-d);border:2px solid var(--line);box-shadow:none}
+.btn.small{padding:10px;font-size:15px}
+.btn:disabled{opacity:.45;box-shadow:none}
+.menu-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:12px 0}
+.menu-grid button{background:var(--card);border:1px solid var(--line);border-radius:14px;box-shadow:var(--shadow);padding:14px 8px;font-size:15px;font-weight:700;color:var(--ink)}
+.menu-grid button .mi{font-size:24px;display:block;margin-bottom:4px}
+.menu-grid button small{display:block;color:var(--sub);font-weight:400;font-size:11px;margin-top:2px}
+/* ---------- bookshelf ---------- */
+.shelf{display:grid;grid-template-columns:repeat(auto-fill,minmax(118px,1fr));gap:10px}
+.book{border-radius:6px 12px 12px 6px;padding:10px 10px 8px 14px;color:#fff;position:relative;box-shadow:var(--shadow);min-height:118px;display:flex;flex-direction:column}
+.book::before{content:"";position:absolute;left:5px;top:0;bottom:0;width:3px;background:rgba(255,255,255,.5)}
+.book .bt{font-weight:800;font-size:14px;line-height:1.35}
+.book .bn{font-size:11px;opacity:.9;margin-top:2px}
+.book .bp{margin-top:auto}
+.book .bar{height:8px;background:rgba(255,255,255,.35);border-radius:5px;overflow:hidden}
+.book .bar>i{display:block;height:100%;background:#fff}
+.book .bpct{font-size:11px;margin-top:3px}
+.book .stamp{position:absolute;right:6px;top:6px;background:#fff;color:var(--red-d);font-size:10px;font-weight:800;border-radius:999px;padding:2px 7px;transform:rotate(8deg)}
+.bk1{background:#b5452f}.bk2{background:#e0a100}.bk3{background:#3d8b4f}.bk4{background:#2f6fb5}.bk5{background:#7a4fa3}.bk6{background:#d2691e}.bk7{background:#00838f}
+/* ---------- study card ---------- */
+.view{display:none}
+.view.on{display:block}
+.topbar{display:flex;align-items:center;gap:10px;margin:14px 0 4px}
+.topbar .back{background:#fff;border:1px solid var(--line);border-radius:10px;padding:8px 13px;font-size:14px;font-weight:700;color:var(--ink)}
+.topbar .vt{font-weight:800;font-size:17px}
+.sess-progress{height:10px;background:#efe4c8;border-radius:6px;overflow:hidden;margin:8px 0}
+.sess-progress>i{display:block;height:100%;background:var(--green);transition:width .3s}
+.study-card{background:var(--card);border:1px solid var(--line);border-radius:20px;box-shadow:var(--shadow);padding:26px 18px 20px;text-align:center;margin:10px 0;min-height:300px;display:flex;flex-direction:column;justify-content:center}
+.study-card .tag{font-size:12px;color:var(--sub)}
+.study-card .word{font-size:40px;font-weight:900;letter-spacing:.01em;margin:10px 0 2px;word-break:break-word}
+.study-card .word.small{font-size:30px}
+.study-card .pos{color:var(--sub);font-size:14px}
+.study-card .meaning{font-size:24px;font-weight:800;color:var(--red-d);margin:14px 0 4px}
+.study-card .example{font-size:17px;margin-top:12px;line-height:1.55}
+.study-card .example-ja{font-size:14px;color:var(--sub);margin-top:3px}
+.spk{background:#fdf3d7;border:1px solid var(--line);border-radius:999px;font-size:15px;padding:6px 14px;margin-top:8px}
+.grade-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin:12px 0}
+.grade-row button{border:none;border-radius:14px;padding:16px 4px;font-size:17px;font-weight:800;color:#fff}
+.g-forgot{background:#c0392b;box-shadow:0 4px 0 #8e2a20}
+.g-unsure{background:var(--gold);box-shadow:0 4px 0 #a97c00;color:#4a3500}
+.g-known{background:var(--green);box-shadow:0 4px 0 #2b6138}
+.grade-row button:active{transform:translateY(3px);box-shadow:none}
+.grade-row small{display:block;font-weight:400;font-size:11px;opacity:.85}
+/* ---------- quiz ---------- */
+.quiz-q{font-size:20px;font-weight:800;text-align:center;margin:8px 0 4px}
+.quiz-word{font-size:34px;font-weight:900;text-align:center;margin:6px 0}
+.choices{display:grid;gap:10px;margin:14px 0}
+.choices button{background:var(--card);border:2px solid var(--line);border-radius:14px;padding:15px;font-size:17px;font-weight:700;text-align:left;color:var(--ink)}
+.choices button.right{border-color:var(--green);background:#e8f5ec}
+.choices button.wrong{border-color:#c0392b;background:#fbeae8}
+.quiz-score{text-align:center;color:var(--sub);font-size:13px}
+/* ---------- wordbook ---------- */
+.wb-tools{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0}
+.wb-tools select,.wb-tools input{font-size:15px;padding:9px;border:1px solid var(--line);border-radius:10px;background:#fff;color:var(--ink)}
+.wb-tools input{flex:1;min-width:140px}
+.wb-list{border:1px solid var(--line);border-radius:14px;overflow:hidden;background:var(--card)}
+.wb-row{display:flex;gap:10px;align-items:baseline;padding:10px 12px;border-bottom:1px solid #f0e7cd;width:100%;background:none;border-left:none;border-right:none;border-top:none;text-align:left;font-size:15px;color:var(--ink)}
+.wb-row:last-child{border-bottom:none}
+.wb-row .ww{font-weight:800;min-width:110px}
+.wb-row .wm{color:var(--red-d);flex:1}
+.wb-row .wl{font-size:11px;color:#fff;border-radius:999px;padding:2px 8px;white-space:nowrap}
+.hide-meanings .wb-row .wm{background:#e8dcbc;color:transparent;border-radius:6px;user-select:none}
+.hide-meanings .wb-row.revealed .wm{background:none;color:var(--red-d)}
+.wb-count{color:var(--sub);font-size:12px;margin:6px 2px}
+/* ---------- calendar ---------- */
+.cal{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;margin-top:6px}
+.cal .dow{font-size:11px;color:var(--sub);text-align:center}
+.cal .cell{aspect-ratio:1;border-radius:8px;background:#f4ecd4;font-size:11px;display:flex;flex-direction:column;align-items:center;justify-content:center;color:var(--sub)}
+.cal .cell.did{background:#ffe1a8;color:var(--ink);font-weight:700}
+.cal .cell.today{outline:2px solid var(--red)}
+.cal .cell .n{font-size:9px;color:var(--red-d)}
+/* ---------- misc ---------- */
+.note{font-size:12px;color:var(--sub);line-height:1.7}
+.footer-note{margin:22px 0 6px;text-align:center}
+select.set{font-size:16px;padding:8px;border-radius:10px;border:1px solid var(--line);background:#fff}
+.row-flex{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:9px 0;border-bottom:1px dashed var(--line)}
+.row-flex:last-child{border-bottom:none}
+.big-done{font-size:26px;font-weight:900;color:var(--red-d);text-align:center;margin:8px 0}
+#confetti{position:fixed;inset:0;pointer-events:none;overflow:hidden;z-index:50}
+#confetti i{position:absolute;top:-16px;width:9px;height:14px;border-radius:2px;animation:fall linear forwards}
+@keyframes fall{to{transform:translateY(105vh) rotate(720deg)}}
+.modal-bg{position:fixed;inset:0;background:rgba(40,30,10,.5);display:none;align-items:flex-end;justify-content:center;z-index:60}
+.modal-bg.on{display:flex}
+.modal{background:var(--card);border-radius:20px 20px 0 0;width:100%;max-width:560px;max-height:82vh;overflow:auto;padding:20px 18px 30px}
+.modal .word{font-size:30px;font-weight:900}
+.modal .meaning{font-size:20px;font-weight:800;color:var(--red-d);margin:8px 0}
+.modal .example{font-size:16px;line-height:1.6}
+.modal .example-ja{font-size:13px;color:var(--sub)}
+textarea.io{width:100%;height:90px;font-size:12px;border:1px solid var(--line);border-radius:10px;padding:8px}
+</style>
+</head>
+<body>
+<div id="confetti"></div>
+<div class="wrap">
+
+  <!-- ================= HOME ================= -->
+  <section id="view-home" class="view on">
+    <div class="title-area">
+      <div class="logo-beans">● ● ●</div>
+      <h1 class="app-title">英単語ポケット</h1>
+      <p class="app-sub">― まいにち豆つづり ―<br>中学・高校の英単語と英熟語を、毎日少しずつ。</p>
+      <div class="title-books" aria-hidden="true"><span class="tb1"></span><span class="tb2"></span><span class="tb3"></span><span class="tb4"></span><span class="tb5"></span><span class="tb6"></span><span class="tb7"></span></div>
+    </div>
+
+    <div class="panel">
+      <h2>📅 今日の分</h2>
+      <div style="display:flex;align-items:flex-end;gap:14px">
+        <div class="today-num" id="today-remain">–</div>
+        <div class="today-label" style="padding-bottom:8px">あと ○ 語で今日の分は終わり</div>
+      </div>
+      <div class="progress"><i id="today-bar" style="width:0%"></i></div>
+      <div class="note" id="today-detail">読み込み中…</div>
+      <div class="streak">
+        <span class="chip">🔥 連続 <b id="streak-num">0</b> 日</span>
+        <span class="chip">📚 習った語 <b id="learned-num">0</b> / 700</span>
+        <span class="chip">🎓 卒業 <b id="grad-num">0</b> 語</span>
+      </div>
+      <button class="btn" id="btn-start">▶ 今日の分をはじめる</button>
+      <button class="btn ghost small" id="btn-more" style="display:none">もう少しだけ追加で学ぶ（自由練習）</button>
+    </div>
+
+    <div class="menu-grid">
+      <button id="menu-quiz"><span class="mi">🎧</span>クイズ<small>4択と聞き取り</small></button>
+      <button id="menu-book"><span class="mi">📖</span>単語帳<small>一覧・目隠し・検索</small></button>
+      <button id="menu-weak"><span class="mi">📌</span>苦手ノート<small id="weak-count">忘れやすい語を集中復習</small></button>
+      <button id="menu-set"><span class="mi">⚙️</span>設定・記録<small>目標・カレンダー・保存</small></button>
+    </div>
+
+    <div class="panel">
+      <h2>📚 豆本の本棚（レベル）</h2>
+      <div class="shelf" id="shelf"></div>
+      <p class="note" style="margin-top:10px">1冊は100語。カードで「わかった」が続くと語が育ち、冊子ごとに進み具合が見えます。第1弾は中学・基礎の7冊（単語600＋熟語100）です。高校ぶんの冊子は順次追加されます。</p>
+    </div>
+
+    <div class="panel">
+      <h2>🌱 このアプリの仕組み</h2>
+      <p class="note" style="font-size:13px;color:var(--ink)">
+        覚えた語は、忘れかけたころに自動でもう一度出てきます（1日後→3日後→7日後→14日後→30日後→60日後）。
+        「わすれた」を押した語は、その日のうちに再び出てきて覚え直せます。何度も忘れる語は「苦手ノート」に自動で集まります。
+        発音は端末の音声で聞けます。例文はすべてこのアプリのために書き下ろしたものです。
+      </p>
+    </div>
+    <p class="note footer-note">不具合が出るかもしれません。実際にご使用の際に不具合がありましたら、noteのコメント欄からお知らせください。</p>
+  </section>
+
+  <!-- ================= STUDY ================= -->
+  <section id="view-study" class="view">
+    <div class="topbar"><button class="back" data-go="home">← もどる</button><span class="vt" id="study-title">今日の分</span></div>
+    <div class="sess-progress"><i id="study-bar" style="width:0%"></i></div>
+    <div class="quiz-score" id="study-count"></div>
+    <div class="study-card" id="study-card"></div>
+    <div id="study-actions"></div>
+  </section>
+
+  <!-- ================= QUIZ ================= -->
+  <section id="view-quiz" class="view">
+    <div class="topbar"><button class="back" data-go="home">← もどる</button><span class="vt">クイズ</span></div>
+    <div class="panel" id="quiz-panel"></div>
+  </section>
+
+  <!-- ================= WORDBOOK ================= -->
+  <section id="view-book" class="view">
+    <div class="topbar"><button class="back" data-go="home">← もどる</button><span class="vt">単語帳</span></div>
+    <div class="wb-tools">
+      <select id="wb-book"></select>
+      <input id="wb-q" type="search" placeholder="単語・意味で検索">
+      <label style="font-size:14px;display:flex;align-items:center;gap:5px"><input type="checkbox" id="wb-hide" style="width:20px;height:20px"> 目隠し</label>
+    </div>
+    <div class="wb-count" id="wb-count"></div>
+    <div class="wb-list" id="wb-list"></div>
+    <p class="note" style="margin-top:8px">目隠し中は、行を押すとその語の意味だけが見えます。語を押すと詳しく見られます。</p>
+  </section>
+
+  <!-- ================= WEAK ================= -->
+  <section id="view-weak" class="view">
+    <div class="topbar"><button class="back" data-go="home">← もどる</button><span class="vt">苦手ノート</span></div>
+    <div class="panel">
+      <p class="note" style="font-size:13px;color:var(--ink)">「わすれた」を2回以上押した語が自動で集まります。ここで集中して復習すると、間隔はそのまま育ち直します。</p>
+      <div id="weak-list"></div>
+      <button class="btn blue" id="btn-weak-start">📌 苦手だけを復習する</button>
+    </div>
+  </section>
+
+  <!-- ================= SETTINGS ================= -->
+  <section id="view-set" class="view">
+    <div class="topbar"><button class="back" data-go="home">← もどる</button><span class="vt">設定・記録</span></div>
+    <div class="panel">
+      <h2>🎯 1日の目標</h2>
+      <div class="row-flex"><span>新しい語の数（1日）</span>
+        <select class="set" id="set-daily"><option value="5">5語</option><option value="10">10語</option><option value="15">15語</option><option value="20">20語</option></select></div>
+      <div class="row-flex"><span>音（効果音）</span>
+        <select class="set" id="set-sound"><option value="1">聞こえる</option><option value="0">消す</option></select></div>
+    </div>
+    <div class="panel">
+      <h2>🗓 学習カレンダー（今月）</h2>
+      <div class="cal" id="cal"></div>
+      <p class="note">数字はその日に学習した語数です。</p>
+    </div>
+    <div class="panel">
+      <h2>💾 記録の保存・引き継ぎ</h2>
+      <p class="note">学習記録はこの端末の中に保存されます。別の端末へ移すときは、書き出して読み込んでください。</p>
+      <button class="btn ghost small" id="btn-export">記録を書き出す（ダウンロード）</button>
+      <textarea class="io" id="io-text" placeholder="書き出した記録はここにも表示されます。読み込むときは、ここに貼り付けて下のボタンを押してください。"></textarea>
+      <button class="btn ghost small" id="btn-import">上の記録を読み込む</button>
+      <button class="btn ghost small" id="btn-reset" style="color:#c0392b;border-color:#e5b6b0">記録をすべて消す</button>
+    </div>
+  </section>
+
+</div>
+
+<!-- detail modal -->
+<div class="modal-bg" id="modal-bg">
+  <div class="modal" id="modal"></div>
+</div>
+
+<script>
+"use strict";
+const DATA = [{"w":"I","pos":"代名詞","m":"わたしは、わたしが","ex":"I am a student.","ja":"わたしは学生です。","t":"w","b":1},{"w":"you","pos":"代名詞","m":"あなたは、あなたが、あなたを","ex":"You are my friend.","ja":"あなたはわたしの友だちです。","t":"w","b":1},{"w":"he","pos":"代名詞","m":"彼は、彼が","ex":"He plays soccer.","ja":"彼はサッカーをします。","t":"w","b":1},{"w":"she","pos":"代名詞","m":"彼女は、彼女が","ex":"She likes music.","ja":"彼女は音楽が好きです。","t":"w","b":1},{"w":"it","pos":"代名詞","m":"それは、それが、それを","ex":"It is a small cat.","ja":"それは小さな猫です。","t":"w","b":1},{"w":"we","pos":"代名詞","m":"わたしたちは、わたしたちが","ex":"We go to school by bus.","ja":"わたしたちはバスで学校へ行きます。","t":"w","b":1},{"w":"they","pos":"代名詞","m":"彼らは、彼女らは、それらは","ex":"They are in the park.","ja":"彼らは公園にいます。","t":"w","b":1},{"w":"my","pos":"代名詞","m":"わたしの","ex":"My name is Ken.","ja":"わたしの名前はケンです。","t":"w","b":1},{"w":"your","pos":"代名詞","m":"あなたの","ex":"Is this your bag?","ja":"これはあなたのカバンですか。","t":"w","b":1},{"w":"me","pos":"代名詞","m":"わたしを、わたしに","ex":"Please help me.","ja":"わたしを助けてください。","t":"w","b":1},{"w":"him","pos":"代名詞","m":"彼を、彼に","ex":"I know him well.","ja":"わたしは彼をよく知っています。","t":"w","b":1},{"w":"her","pos":"代名詞","m":"彼女を、彼女に、彼女の","ex":"This present is for her.","ja":"このプレゼントは彼女へのものです。","t":"w","b":1},{"w":"us","pos":"代名詞","m":"わたしたちを、わたしたちに","ex":"The teacher teaches us English.","ja":"先生はわたしたちに英語を教えます。","t":"w","b":1},{"w":"them","pos":"代名詞","m":"彼らを、彼らに","ex":"I gave them some flowers.","ja":"わたしは彼らに花をあげました。","t":"w","b":1},{"w":"this","pos":"代名詞・形容詞","m":"これは、この","ex":"This is my pen.","ja":"これはわたしのペンです。","t":"w","b":1},{"w":"that","pos":"代名詞・形容詞","m":"あれは、あの","ex":"That is a big tree.","ja":"あれは大きな木です。","t":"w","b":1},{"w":"who","pos":"代名詞","m":"だれが、だれですか","ex":"Who is that boy?","ja":"あの少年はだれですか。","t":"w","b":1},{"w":"what","pos":"代名詞・形容詞","m":"何が、何を、どんな","ex":"What do you want?","ja":"あなたは何がほしいですか。","t":"w","b":1},{"w":"when","pos":"副詞・接続詞","m":"いつ、〜のとき","ex":"When is your birthday?","ja":"あなたの誕生日はいつですか。","t":"w","b":1},{"w":"where","pos":"副詞","m":"どこで、どこに","ex":"Where do you live?","ja":"あなたはどこに住んでいますか。","t":"w","b":1},{"w":"why","pos":"副詞","m":"なぜ、どうして","ex":"Why are you sad?","ja":"なぜあなたは悲しいのですか。","t":"w","b":1},{"w":"how","pos":"副詞","m":"どのように、どれくらい","ex":"How are you today?","ja":"今日はごきげんいかがですか。","t":"w","b":1},{"w":"be","pos":"動詞","m":"〜である、〜にいる","ex":"Be kind to everyone.","ja":"だれにでも親切にしなさい。","t":"w","b":1},{"w":"have","pos":"動詞","m":"持っている、〜がある","ex":"I have a new bike.","ja":"わたしは新しい自転車を持っています。","t":"w","b":1},{"w":"do","pos":"動詞","m":"する、〜ですか（疑問文で）","ex":"Do you like sushi?","ja":"あなたはすしが好きですか。","t":"w","b":1},{"w":"go","pos":"動詞","m":"行く","ex":"We go to the library.","ja":"わたしたちは図書館へ行きます。","t":"w","b":1},{"w":"come","pos":"動詞","m":"来る","ex":"Come here, please.","ja":"ここへ来てください。","t":"w","b":1},{"w":"see","pos":"動詞","m":"見える、会う","ex":"I see a bird in the sky.","ja":"空に鳥が見えます。","t":"w","b":1},{"w":"look","pos":"動詞","m":"見る、〜に見える","ex":"Look at the picture.","ja":"その絵を見なさい。","t":"w","b":1},{"w":"listen","pos":"動詞","m":"聞く、耳を傾ける","ex":"Listen to the music.","ja":"その音楽を聞きなさい。","t":"w","b":1},{"w":"speak","pos":"動詞","m":"話す","ex":"She speaks English well.","ja":"彼女は英語を上手に話します。","t":"w","b":1},{"w":"read","pos":"動詞","m":"読む","ex":"I read a book every night.","ja":"わたしは毎晩本を読みます。","t":"w","b":1},{"w":"write","pos":"動詞","m":"書く","ex":"Write your name here.","ja":"ここに名前を書きなさい。","t":"w","b":1},{"w":"sing","pos":"動詞","m":"歌う","ex":"They sing a song together.","ja":"彼らはいっしょに歌を歌います。","t":"w","b":1},{"w":"swim","pos":"動詞","m":"泳ぐ","ex":"He can swim fast.","ja":"彼は速く泳げます。","t":"w","b":1},{"w":"run","pos":"動詞","m":"走る","ex":"Run to the station.","ja":"駅まで走りなさい。","t":"w","b":1},{"w":"walk","pos":"動詞","m":"歩く","ex":"We walk in the park.","ja":"わたしたちは公園を歩きます。","t":"w","b":1},{"w":"play","pos":"動詞","m":"遊ぶ、（スポーツ・楽器を）する・弾く","ex":"Children play in the garden.","ja":"子どもたちは庭で遊びます。","t":"w","b":1},{"w":"study","pos":"動詞","m":"勉強する","ex":"I study math after dinner.","ja":"わたしは夕食のあと数学を勉強します。","t":"w","b":1},{"w":"teach","pos":"動詞","m":"教える","ex":"Mr. Tanaka teaches science.","ja":"田中先生は理科を教えます。","t":"w","b":1},{"w":"learn","pos":"動詞","m":"学ぶ、覚える","ex":"We learn many things at school.","ja":"わたしたちは学校で多くのことを学びます。","t":"w","b":1},{"w":"eat","pos":"動詞","m":"食べる","ex":"Eat your breakfast.","ja":"朝ごはんを食べなさい。","t":"w","b":1},{"w":"drink","pos":"動詞","m":"飲む","ex":"I drink water after running.","ja":"走ったあとに水を飲みます。","t":"w","b":1},{"w":"cook","pos":"動詞","m":"料理する","ex":"My father cooks dinner.","ja":"父は夕食を作ります。","t":"w","b":1},{"w":"make","pos":"動詞","m":"作る","ex":"Let's make a cake.","ja":"ケーキを作りましょう。","t":"w","b":1},{"w":"take","pos":"動詞","m":"取る、連れていく、（乗り物に）乗る","ex":"Take this book to the library.","ja":"この本を図書館へ持っていきなさい。","t":"w","b":1},{"w":"get","pos":"動詞","m":"手に入れる、〜になる","ex":"I get up at six.","ja":"わたしは6時に起きます。","t":"w","b":1},{"w":"give","pos":"動詞","m":"与える、あげる","ex":"Give me your hand.","ja":"手を貸してください。","t":"w","b":1},{"w":"buy","pos":"動詞","m":"買う","ex":"She buys flowers every Sunday.","ja":"彼女は毎週日曜日に花を買います。","t":"w","b":1},{"w":"meet","pos":"動詞","m":"会う","ex":"Let's meet at the station.","ja":"駅で会いましょう。","t":"w","b":1},{"w":"know","pos":"動詞","m":"知っている","ex":"Do you know this song?","ja":"あなたはこの歌を知っていますか。","t":"w","b":1},{"w":"think","pos":"動詞","m":"思う、考える","ex":"I think it is a good idea.","ja":"それはよい考えだと思います。","t":"w","b":1},{"w":"like","pos":"動詞","m":"好きである","ex":"I like apples very much.","ja":"わたしはりんごが大好きです。","t":"w","b":1},{"w":"love","pos":"動詞","m":"大好きである、愛する","ex":"We love our town.","ja":"わたしたちは自分たちの町が大好きです。","t":"w","b":1},{"w":"want","pos":"動詞","m":"ほしい、〜したい","ex":"I want a new camera.","ja":"新しいカメラがほしいです。","t":"w","b":1},{"w":"need","pos":"動詞","m":"必要とする","ex":"You need a map.","ja":"あなたには地図が必要です。","t":"w","b":1},{"w":"help","pos":"動詞","m":"助ける、手伝う","ex":"Can you help me?","ja":"手伝ってくれますか。","t":"w","b":1},{"w":"live","pos":"動詞","m":"住む、生きる","ex":"They live in Niigata.","ja":"彼らは新潟に住んでいます。","t":"w","b":1},{"w":"work","pos":"動詞","m":"働く、仕事をする","ex":"My mother works at a hospital.","ja":"母は病院で働いています。","t":"w","b":1},{"w":"man","pos":"名詞","m":"男の人、男性","ex":"That man is a teacher.","ja":"あの男性は先生です。","t":"w","b":1},{"w":"woman","pos":"名詞","m":"女の人、女性","ex":"The woman has a kind smile.","ja":"その女性は優しい笑顔です。","t":"w","b":1},{"w":"boy","pos":"名詞","m":"男の子、少年","ex":"The boy has a red cap.","ja":"その少年は赤い帽子を持っています。","t":"w","b":1},{"w":"girl","pos":"名詞","m":"女の子、少女","ex":"The girl sings well.","ja":"その少女は歌が上手です。","t":"w","b":1},{"w":"teacher","pos":"名詞","m":"先生、教師","ex":"Our teacher is very kind.","ja":"わたしたちの先生はとても親切です。","t":"w","b":1},{"w":"student","pos":"名詞","m":"生徒、学生","ex":"He is a high school student.","ja":"彼は高校生です。","t":"w","b":1},{"w":"friend","pos":"名詞","m":"友だち","ex":"She is my best friend.","ja":"彼女はわたしのいちばんの友だちです。","t":"w","b":1},{"w":"family","pos":"名詞","m":"家族","ex":"My family is small.","ja":"わたしの家族は小さいです。","t":"w","b":1},{"w":"father","pos":"名詞","m":"父、お父さん","ex":"My father likes fishing.","ja":"父は釣りが好きです。","t":"w","b":1},{"w":"mother","pos":"名詞","m":"母、お母さん","ex":"My mother is a good cook.","ja":"母は料理が上手です。","t":"w","b":1},{"w":"brother","pos":"名詞","m":"兄、弟、兄弟","ex":"I have one brother.","ja":"わたしには兄弟が一人います。","t":"w","b":1},{"w":"sister","pos":"名詞","m":"姉、妹、姉妹","ex":"My sister plays the piano.","ja":"姉はピアノを弾きます。","t":"w","b":1},{"w":"people","pos":"名詞","m":"人々","ex":"Many people visit this park.","ja":"多くの人々がこの公園を訪れます。","t":"w","b":1},{"w":"child","pos":"名詞","m":"子ども","ex":"The child is sleeping now.","ja":"その子は今眠っています。","t":"w","b":1},{"w":"baby","pos":"名詞","m":"赤ちゃん","ex":"The baby is smiling.","ja":"赤ちゃんが笑っています。","t":"w","b":1},{"w":"name","pos":"名詞","m":"名前","ex":"What is your name?","ja":"あなたの名前は何ですか。","t":"w","b":1},{"w":"school","pos":"名詞","m":"学校","ex":"Our school is near the river.","ja":"わたしたちの学校は川の近くです。","t":"w","b":1},{"w":"class","pos":"名詞","m":"クラス、授業","ex":"We have an English class today.","ja":"今日は英語の授業があります。","t":"w","b":1},{"w":"book","pos":"名詞","m":"本","ex":"This book is interesting.","ja":"この本はおもしろいです。","t":"w","b":1},{"w":"pen","pos":"名詞","m":"ペン","ex":"I write with a blue pen.","ja":"わたしは青いペンで書きます。","t":"w","b":1},{"w":"pencil","pos":"名詞","m":"鉛筆","ex":"He has three pencils.","ja":"彼は鉛筆を3本持っています。","t":"w","b":1},{"w":"desk","pos":"名詞","m":"机","ex":"There is a book on the desk.","ja":"机の上に本があります。","t":"w","b":1},{"w":"chair","pos":"名詞","m":"いす","ex":"Please sit on this chair.","ja":"このいすに座ってください。","t":"w","b":1},{"w":"bag","pos":"名詞","m":"カバン、袋","ex":"Her bag is very big.","ja":"彼女のカバンはとても大きいです。","t":"w","b":1},{"w":"door","pos":"名詞","m":"ドア、扉","ex":"Open the door, please.","ja":"ドアを開けてください。","t":"w","b":1},{"w":"window","pos":"名詞","m":"窓","ex":"Close the window, please.","ja":"窓を閉めてください。","t":"w","b":1},{"w":"house","pos":"名詞","m":"家","ex":"Their house is on the hill.","ja":"彼らの家は丘の上にあります。","t":"w","b":1},{"w":"room","pos":"名詞","m":"部屋","ex":"My room is clean and bright.","ja":"わたしの部屋はきれいで明るいです。","t":"w","b":1},{"w":"home","pos":"名詞・副詞","m":"家、家庭、家へ","ex":"Let's go home.","ja":"家に帰りましょう。","t":"w","b":1},{"w":"dog","pos":"名詞","m":"犬","ex":"The dog runs very fast.","ja":"その犬はとても速く走ります。","t":"w","b":1},{"w":"cat","pos":"名詞","m":"猫","ex":"Our cat likes fish.","ja":"うちの猫は魚が好きです。","t":"w","b":1},{"w":"bird","pos":"名詞","m":"鳥","ex":"A bird is singing in the tree.","ja":"木の中で鳥が鳴いています。","t":"w","b":1},{"w":"fish","pos":"名詞","m":"魚","ex":"We eat fish for dinner.","ja":"わたしたちは夕食に魚を食べます。","t":"w","b":1},{"w":"day","pos":"名詞","m":"日、1日、昼間","ex":"It is a fine day today.","ja":"今日はよい天気の日です。","t":"w","b":1},{"w":"today","pos":"名詞・副詞","m":"今日、今日は","ex":"Today is Sunday.","ja":"今日は日曜日です。","t":"w","b":1},{"w":"tomorrow","pos":"名詞・副詞","m":"明日","ex":"See you tomorrow.","ja":"また明日会いましょう。","t":"w","b":1},{"w":"yesterday","pos":"名詞・副詞","m":"昨日","ex":"It rained yesterday.","ja":"昨日は雨が降りました。","t":"w","b":1},{"w":"morning","pos":"名詞","m":"朝","ex":"Good morning, everyone.","ja":"みなさん、おはようございます。","t":"w","b":1},{"w":"night","pos":"名詞","m":"夜","ex":"Good night. Sleep well.","ja":"おやすみなさい。よく眠ってね。","t":"w","b":1},{"w":"time","pos":"名詞","m":"時間、時刻","ex":"What time is it now?","ja":"今何時ですか。","t":"w","b":1},{"w":"year","pos":"名詞","m":"年、1年","ex":"Happy New Year!","ja":"あけましておめでとう！","t":"w","b":1},{"w":"question","pos":"名詞","m":"質問","ex":"I have a question.","ja":"質問があります。","t":"w","b":2},{"w":"answer","pos":"名詞","m":"答え","ex":"The answer is three.","ja":"答えは3です。","t":"w","b":2},{"w":"homework","pos":"名詞","m":"宿題","ex":"We do our homework together.","ja":"わたしたちはいっしょに宿題をします。","t":"w","b":2},{"w":"test","pos":"名詞","m":"テスト、試験","ex":"We have a math test today.","ja":"今日は数学のテストがあります。","t":"w","b":2},{"w":"subject","pos":"名詞","m":"教科、科目","ex":"English is my favorite subject.","ja":"英語はわたしのお気に入りの教科です。","t":"w","b":2},{"w":"math","pos":"名詞","m":"数学","ex":"I like math very much.","ja":"わたしは数学が大好きです。","t":"w","b":2},{"w":"music","pos":"名詞","m":"音楽","ex":"Music makes me happy.","ja":"音楽はわたしを幸せにします。","t":"w","b":2},{"w":"picture","pos":"名詞","m":"絵、写真","ex":"She draws a nice picture.","ja":"彼女は素敵な絵を描きます。","t":"w","b":2},{"w":"song","pos":"名詞","m":"歌","ex":"Let's sing a song.","ja":"歌を歌いましょう。","t":"w","b":2},{"w":"story","pos":"名詞","m":"物語、お話","ex":"This story is very funny.","ja":"この物語はとてもおもしろいです。","t":"w","b":2},{"w":"word","pos":"名詞","m":"単語、言葉","ex":"What does this word mean?","ja":"この単語はどういう意味ですか。","t":"w","b":2},{"w":"sentence","pos":"名詞","m":"文","ex":"Write the sentence in your notebook.","ja":"その文をノートに書きなさい。","t":"w","b":2},{"w":"letter","pos":"名詞","m":"文字、手紙","ex":"The letter 'A' is big.","ja":"文字のAは大きいです。","t":"w","b":2},{"w":"number","pos":"名詞","m":"数字、数","ex":"Five is my lucky number.","ja":"5はわたしの幸運な数字です。","t":"w","b":2},{"w":"color","pos":"名詞","m":"色","ex":"Red is a bright color.","ja":"赤は明るい色です。","t":"w","b":2},{"w":"one","pos":"数詞","m":"1、一つ","ex":"One, two, three, let's go!","ja":"1、2、3、さあ行こう！","t":"w","b":2},{"w":"two","pos":"数詞","m":"2、二つ","ex":"I have two sisters.","ja":"わたしには姉妹が二人います。","t":"w","b":2},{"w":"three","pos":"数詞","m":"3、三つ","ex":"There are three apples on the table.","ja":"テーブルの上にりんごが3つあります。","t":"w","b":2},{"w":"four","pos":"数詞","m":"4、四つ","ex":"Our team has four players here.","ja":"わたしたちのチームはここに選手が4人います。","t":"w","b":2},{"w":"five","pos":"数詞","m":"5、五つ","ex":"The shop opens at five.","ja":"その店は5時に開きます。","t":"w","b":2},{"w":"six","pos":"数詞","m":"6、六つ","ex":"Six students are absent today.","ja":"今日は生徒が6人休みです。","t":"w","b":2},{"w":"seven","pos":"数詞","m":"7、七つ","ex":"There are seven days in a week.","ja":"1週間は7日あります。","t":"w","b":2},{"w":"eight","pos":"数詞","m":"8、八つ","ex":"School starts at eight thirty.","ja":"学校は8時30分に始まります。","t":"w","b":2},{"w":"nine","pos":"数詞","m":"9、九つ","ex":"I go to bed at nine.","ja":"わたしは9時に寝ます。","t":"w","b":2},{"w":"ten","pos":"数詞","m":"10、十","ex":"He is ten years old.","ja":"彼は10歳です。","t":"w","b":2},{"w":"lunch","pos":"名詞","m":"昼食","ex":"We eat lunch at school.","ja":"わたしたちは学校で昼食を食べます。","t":"w","b":2},{"w":"breakfast","pos":"名詞","m":"朝食","ex":"Breakfast is ready.","ja":"朝食の用意ができました。","t":"w","b":2},{"w":"dinner","pos":"名詞","m":"夕食","ex":"We have dinner at seven.","ja":"わたしたちは7時に夕食を食べます。","t":"w","b":2},{"w":"wake","pos":"動詞","m":"（目が）覚める","ex":"I wake up early every day.","ja":"わたしは毎日早く目を覚まします。","t":"w","b":2},{"w":"sleep","pos":"動詞","m":"眠る","ex":"She sleeps for eight hours.","ja":"彼女は8時間眠ります。","t":"w","b":2},{"w":"stand","pos":"動詞","m":"立つ","ex":"Stand up, please.","ja":"立ってください。","t":"w","b":2},{"w":"sit","pos":"動詞","m":"座る","ex":"Sit down, please.","ja":"座ってください。","t":"w","b":2},{"w":"open","pos":"動詞","m":"開ける、開く","ex":"Open your books.","ja":"本を開きなさい。","t":"w","b":2},{"w":"close","pos":"動詞","m":"閉める、閉じる","ex":"Close the door quietly.","ja":"静かにドアを閉めなさい。","t":"w","b":2},{"w":"start","pos":"動詞","m":"始まる、始める","ex":"The class starts at nine.","ja":"授業は9時に始まります。","t":"w","b":2},{"w":"begin","pos":"動詞","m":"始まる、始める","ex":"The movie begins at two.","ja":"その映画は2時に始まります。","t":"w","b":2},{"w":"end","pos":"動詞","m":"終わる、終わらせる","ex":"School ends at four.","ja":"学校は4時に終わります。","t":"w","b":2},{"w":"finish","pos":"動詞","m":"終える、仕上げる","ex":"Finish your homework first.","ja":"先に宿題を終えなさい。","t":"w","b":2},{"w":"watch","pos":"動詞","m":"（注意して）見る","ex":"I watch TV after dinner.","ja":"夕食のあとテレビを見ます。","t":"w","b":2},{"w":"radio","pos":"名詞","m":"ラジオ","ex":"He listens to the radio.","ja":"彼はラジオを聞きます。","t":"w","b":2},{"w":"TV","pos":"名詞","m":"テレビ","ex":"We watch TV at night.","ja":"わたしたちは夜テレビを見ます。","t":"w","b":2},{"w":"newspaper","pos":"名詞","m":"新聞","ex":"My father reads a newspaper.","ja":"父は新聞を読みます。","t":"w","b":2},{"w":"computer","pos":"名詞","m":"コンピューター","ex":"I use a computer at school.","ja":"わたしは学校でコンピューターを使います。","t":"w","b":2},{"w":"phone","pos":"名詞","m":"電話（機）","ex":"This is my new phone.","ja":"これはわたしの新しい電話です。","t":"w","b":2},{"w":"camera","pos":"名詞","m":"カメラ","ex":"I have a small camera.","ja":"わたしは小さいカメラを持っています。","t":"w","b":2},{"w":"bike","pos":"名詞","m":"自転車","ex":"He goes to school by bike.","ja":"彼は自転車で学校へ行きます。","t":"w","b":2},{"w":"bus","pos":"名詞","m":"バス","ex":"The bus is late today.","ja":"今日はバスが遅れています。","t":"w","b":2},{"w":"train","pos":"名詞","m":"電車、列車","ex":"We go by train.","ja":"わたしたちは電車で行きます。","t":"w","b":2},{"w":"car","pos":"名詞","m":"車、自動車","ex":"My father drives a car.","ja":"父は車を運転します。","t":"w","b":2},{"w":"station","pos":"名詞","m":"駅","ex":"The station is near here.","ja":"駅はこの近くです。","t":"w","b":2},{"w":"road","pos":"名詞","m":"道、道路","ex":"This road goes to the station.","ja":"この道は駅へ続いています。","t":"w","b":2},{"w":"street","pos":"名詞","m":"通り、街路","ex":"We walk on this street every day.","ja":"わたしたちは毎日この通りを歩きます。","t":"w","b":2},{"w":"shop","pos":"名詞","m":"店","ex":"There are many shops on this street.","ja":"この通りには店がたくさんあります。","t":"w","b":2},{"w":"park","pos":"名詞","m":"公園","ex":"Let's go to the park.","ja":"公園へ行きましょう。","t":"w","b":2},{"w":"library","pos":"名詞","m":"図書館","ex":"I read books at the library.","ja":"わたしは図書館で本を読みます。","t":"w","b":2},{"w":"hospital","pos":"名詞","m":"病院","ex":"The hospital is over there.","ja":"病院は向こうにあります。","t":"w","b":2},{"w":"town","pos":"名詞","m":"町","ex":"Our town is small but nice.","ja":"わたしたちの町は小さいけれど素敵です。","t":"w","b":2},{"w":"city","pos":"名詞","m":"都市、市","ex":"Tokyo is a big city.","ja":"東京は大きな都市です。","t":"w","b":2},{"w":"Japan","pos":"名詞","m":"日本","ex":"I live in Japan.","ja":"わたしは日本に住んでいます。","t":"w","b":2},{"w":"America","pos":"名詞","m":"アメリカ","ex":"He is from America.","ja":"彼はアメリカ出身です。","t":"w","b":2},{"w":"Monday","pos":"名詞","m":"月曜日","ex":"Monday is the first day of my week.","ja":"月曜日はわたしの週の最初の日です。","t":"w","b":2},{"w":"Tuesday","pos":"名詞","m":"火曜日","ex":"We have music on Tuesday.","ja":"火曜日に音楽があります。","t":"w","b":2},{"w":"Wednesday","pos":"名詞","m":"水曜日","ex":"Wednesday is a busy day for me.","ja":"水曜日はわたしにとって忙しい日です。","t":"w","b":2},{"w":"Thursday","pos":"名詞","m":"木曜日","ex":"I play tennis on Thursday.","ja":"木曜日にテニスをします。","t":"w","b":2},{"w":"Friday","pos":"名詞","m":"金曜日","ex":"I love Friday evenings.","ja":"金曜日の夕方が大好きです。","t":"w","b":2},{"w":"Saturday","pos":"名詞","m":"土曜日","ex":"We go shopping on Saturday.","ja":"土曜日に買い物に行きます。","t":"w","b":2},{"w":"Sunday","pos":"名詞","m":"日曜日","ex":"Sunday is my favorite day.","ja":"日曜日はわたしのお気に入りの日です。","t":"w","b":2},{"w":"week","pos":"名詞","m":"週、1週間","ex":"There are seven days in a week.","ja":"1週間には7日あります。","t":"w","b":2},{"w":"month","pos":"名詞","m":"月、1か月","ex":"This month is very hot.","ja":"今月はとても暑いです。","t":"w","b":2},{"w":"spring","pos":"名詞","m":"春","ex":"Spring comes in March.","ja":"春は3月に来ます。","t":"w","b":2},{"w":"summer","pos":"名詞","m":"夏","ex":"Summer in Niigata is hot.","ja":"新潟の夏は暑いです。","t":"w","b":2},{"w":"fall","pos":"名詞","m":"秋","ex":"Fall is a good season for reading.","ja":"秋は読書にいい季節です。","t":"w","b":2},{"w":"winter","pos":"名詞","m":"冬","ex":"We have a lot of snow in winter.","ja":"冬には雪がたくさん降ります。","t":"w","b":2},{"w":"season","pos":"名詞","m":"季節","ex":"What season do you like?","ja":"どの季節が好きですか。","t":"w","b":2},{"w":"January","pos":"名詞","m":"1月","ex":"January is the first month.","ja":"1月は最初の月です。","t":"w","b":2},{"w":"June","pos":"名詞","m":"6月","ex":"My birthday is in June.","ja":"わたしの誕生日は6月です。","t":"w","b":2},{"w":"April","pos":"名詞","m":"4月","ex":"School starts in April in Japan.","ja":"日本では学校は4月に始まります。","t":"w","b":2},{"w":"clock","pos":"名詞","m":"時計（置き・掛け）","ex":"The clock says seven.","ja":"時計は7時を指しています。","t":"w","b":2},{"w":"second","pos":"名詞","m":"秒、ちょっと（の間）","ex":"Wait a second, please.","ja":"少し待ってください。","t":"w","b":2},{"w":"minute","pos":"名詞","m":"分、ちょっとの間","ex":"Wait a minute, please.","ja":"少し待ってください。","t":"w","b":2},{"w":"hour","pos":"名詞","m":"時間（60分）","ex":"One hour has sixty minutes.","ja":"1時間は60分です。","t":"w","b":2},{"w":"afternoon","pos":"名詞","m":"午後","ex":"It is a sunny afternoon.","ja":"晴れた午後です。","t":"w","b":2},{"w":"evening","pos":"名詞","m":"夕方、晩","ex":"We have dinner in the evening.","ja":"わたしたちは夕方に夕食をとります。","t":"w","b":2},{"w":"every day","pos":"名詞・形容詞","m":"毎日、毎日の","ex":"I study English every day.","ja":"わたしは毎日英語を勉強します。","t":"w","b":2},{"w":"sometimes","pos":"副詞","m":"ときどき","ex":"We sometimes play baseball.","ja":"わたしたちはときどき野球をします。","t":"w","b":2},{"w":"always","pos":"副詞","m":"いつも、常に","ex":"I always get up early.","ja":"わたしはいつも早く起きます。","t":"w","b":2},{"w":"usually","pos":"副詞","m":"ふつうは、たいてい","ex":"She usually walks to school.","ja":"彼女はふつう歩いて学校へ行きます。","t":"w","b":2},{"w":"often","pos":"副詞","m":"よく、しばしば","ex":"He often reads comic books.","ja":"彼はよく漫画を読みます。","t":"w","b":2},{"w":"never","pos":"副詞","m":"決して〜ない","ex":"I never drink coffee.","ja":"わたしは決してコーヒーを飲みません。","t":"w","b":2},{"w":"now","pos":"副詞・名詞","m":"今、今は","ex":"Come now, please.","ja":"今来てください。","t":"w","b":2},{"w":"here","pos":"副詞","m":"ここに、ここへ、ここで","ex":"Let's start here.","ja":"ここから始めましょう。","t":"w","b":2},{"w":"there","pos":"副詞","m":"そこに、あそこに","ex":"Your book is over there.","ja":"あなたの本は向こうにあります。","t":"w","b":2},{"w":"very","pos":"副詞","m":"とても、非常に","ex":"It is very hot today.","ja":"今日はとても暑いです。","t":"w","b":2},{"w":"too","pos":"副詞","m":"〜すぎる、もまた","ex":"She runs too fast for me.","ja":"彼女はわたしには速すぎるほど速く走ります。","t":"w","b":2},{"w":"together","pos":"副詞","m":"いっしょに","ex":"We are happy together.","ja":"わたしたちはいっしょにいて幸せです。","t":"w","b":2},{"w":"fast","pos":"形容詞・副詞","m":"速い、速く","ex":"The train is very fast.","ja":"その電車はとても速いです。","t":"w","b":2},{"w":"good","pos":"形容詞","m":"よい","ex":"This is a good book.","ja":"これはよい本です。","t":"w","b":2},{"w":"bad","pos":"形容詞","m":"悪い","ex":"It was a bad day for me.","ja":"わたしにとって悪い日でした。","t":"w","b":2},{"w":"big","pos":"形容詞","m":"大きい","ex":"Elephants are big animals.","ja":"ゾウは大きな動物です。","t":"w","b":2},{"w":"small","pos":"形容詞","m":"小さい","ex":"The baby's hands are small.","ja":"赤ちゃんの手は小さいです。","t":"w","b":2},{"w":"rice","pos":"名詞","m":"米、ごはん","ex":"I eat rice every day.","ja":"わたしは毎日ごはんを食べます。","t":"w","b":3},{"w":"bread","pos":"名詞","m":"パン","ex":"This bread is very soft.","ja":"このパンはとてもやわらかいです。","t":"w","b":3},{"w":"egg","pos":"名詞","m":"卵","ex":"He eats an egg for breakfast.","ja":"彼は朝食に卵を食べます。","t":"w","b":3},{"w":"milk","pos":"名詞","m":"牛乳、ミルク","ex":"Drink a glass of milk.","ja":"コップ1杯の牛乳を飲みなさい。","t":"w","b":3},{"w":"water","pos":"名詞","m":"水","ex":"I need some water.","ja":"水が少し必要です。","t":"w","b":3},{"w":"tea","pos":"名詞","m":"お茶、紅茶","ex":"She drinks tea in the morning.","ja":"彼女は朝にお茶を飲みます。","t":"w","b":3},{"w":"coffee","pos":"名詞","m":"コーヒー","ex":"My father drinks coffee after lunch.","ja":"父は昼食のあとコーヒーを飲みます。","t":"w","b":3},{"w":"juice","pos":"名詞","m":"ジュース","ex":"Orange juice is sweet.","ja":"オレンジジュースは甘いです。","t":"w","b":3},{"w":"apple","pos":"名詞","m":"りんご","ex":"I like apples and bananas.","ja":"わたしはりんごとバナナが好きです。","t":"w","b":3},{"w":"orange","pos":"名詞・形容詞","m":"オレンジ、オレンジ色の","ex":"Oranges are good for your health.","ja":"オレンジは健康によいです。","t":"w","b":3},{"w":"cake","pos":"名詞","m":"ケーキ","ex":"The cake is very sweet.","ja":"そのケーキはとても甘いです。","t":"w","b":3},{"w":"meat","pos":"名詞","m":"（食）肉","ex":"We eat meat and vegetables.","ja":"わたしたちは肉と野菜を食べます。","t":"w","b":3},{"w":"salt","pos":"名詞","m":"塩","ex":"Put some salt on the egg.","ja":"卵に塩を少しかけなさい。","t":"w","b":3},{"w":"candy","pos":"名詞","m":"あめ、キャンディー","ex":"I like sweet candy.","ja":"甘いあめが好きです。","t":"w","b":3},{"w":"soup","pos":"名詞","m":"スープ","ex":"This soup is hot.","ja":"このスープは熱いです。","t":"w","b":3},{"w":"food","pos":"名詞","m":"食べ物","ex":"Good food makes us healthy.","ja":"よい食べ物はわたしたちを健康にします。","t":"w","b":3},{"w":"hand","pos":"名詞","m":"手","ex":"Wash your hands before lunch.","ja":"昼食の前に手を洗いなさい。","t":"w","b":3},{"w":"leg","pos":"名詞","m":"足（脚）","ex":"He hurt his leg in the game.","ja":"彼は試合で足をけがしました。","t":"w","b":3},{"w":"foot","pos":"名詞","m":"足（くるぶしから下）","ex":"The baby has small feet.","ja":"赤ちゃんは小さな足をしています。","t":"w","b":3},{"w":"head","pos":"名詞・形容詞","m":"頭、頭の","ex":"My head hurts today.","ja":"今日は頭が痛いです。","t":"w","b":3},{"w":"eye","pos":"名詞","m":"目","ex":"She has beautiful eyes.","ja":"彼女は美しい目をしています。","t":"w","b":3},{"w":"ear","pos":"名詞","m":"耳","ex":"He listens with his ears.","ja":"彼は耳で聞きます。","t":"w","b":3},{"w":"nose","pos":"名詞","m":"鼻","ex":"The dog has a long nose.","ja":"その犬は長い鼻をしています。","t":"w","b":3},{"w":"mouth","pos":"名詞","m":"口","ex":"Open your mouth, please.","ja":"口を開けてください。","t":"w","b":3},{"w":"tooth","pos":"名詞","m":"歯（1本）","ex":"Brush your teeth every morning.","ja":"毎朝歯を磨きなさい。","t":"w","b":3},{"w":"arm","pos":"名詞","m":"腕","ex":"He has strong arms.","ja":"彼は強い腕をしています。","t":"w","b":3},{"w":"hair","pos":"名詞","m":"髪","ex":"Her hair is long and black.","ja":"彼女の髪は長くて黒いです。","t":"w","b":3},{"w":"face","pos":"名詞","m":"顔","ex":"He has a kind face.","ja":"彼は優しい顔をしています。","t":"w","b":3},{"w":"happy","pos":"形容詞","m":"幸せな、うれしい","ex":"I feel happy today.","ja":"今日は幸せな気分です。","t":"w","b":3},{"w":"sad","pos":"形容詞","m":"悲しい","ex":"She looks sad today.","ja":"彼女は今日悲しそうです。","t":"w","b":3},{"w":"angry","pos":"形容詞","m":"怒っている","ex":"Don't be angry.","ja":"怒らないでください。","t":"w","b":3},{"w":"hungry","pos":"形容詞","m":"空腹な","ex":"He was hungry after the game.","ja":"彼は試合のあとおなかがすいていました。","t":"w","b":3},{"w":"thirsty","pos":"形容詞","m":"のどがかわいた","ex":"I am thirsty. Give me water.","ja":"のどがかわきました。水をください。","t":"w","b":3},{"w":"tired","pos":"形容詞","m":"疲れた","ex":"The runners are tired.","ja":"走者たちは疲れています。","t":"w","b":3},{"w":"busy","pos":"形容詞","m":"忙しい","ex":"I am busy this week.","ja":"今週は忙しいです。","t":"w","b":3},{"w":"sleepy","pos":"形容詞","m":"眠い","ex":"Are you OK? You look sleepy.","ja":"大丈夫ですか。眠そうですよ。","t":"w","b":3},{"w":"careful","pos":"形容詞","m":"注意深い","ex":"Be careful with the knife.","ja":"ナイフには気をつけなさい。","t":"w","b":3},{"w":"kind","pos":"形容詞","m":"親切な","ex":"He is a kind teacher.","ja":"彼は親切な先生です。","t":"w","b":3},{"w":"nice","pos":"形容詞","m":"素敵な、よい","ex":"What a nice day!","ja":"なんていい日でしょう！","t":"w","b":3},{"w":"beautiful","pos":"形容詞","m":"美しい","ex":"She is a beautiful singer.","ja":"彼女は美しい歌手です。","t":"w","b":3},{"w":"hot","pos":"形容詞","m":"熱い、暑い","ex":"This coffee is too hot.","ja":"このコーヒーは熱すぎます。","t":"w","b":3},{"w":"cold","pos":"形容詞","m":"寒い、冷たい","ex":"It is cold in winter here.","ja":"ここは冬寒いです。","t":"w","b":3},{"w":"warm","pos":"形容詞","m":"暖かい","ex":"Spring days are warm.","ja":"春の日は暖かいです。","t":"w","b":3},{"w":"cool","pos":"形容詞","m":"涼しい、かっこいい","ex":"The evening air is cool.","ja":"夕方の空気は涼しいです。","t":"w","b":3},{"w":"sunny","pos":"形容詞","m":"晴れた","ex":"Today is sunny and bright.","ja":"今日は晴れて明るいです。","t":"w","b":3},{"w":"rainy","pos":"形容詞","m":"雨の","ex":"It is rainy today.","ja":"今日は雨降りです。","t":"w","b":3},{"w":"sky","pos":"名詞","m":"空","ex":"The sky is blue.","ja":"空は青いです。","t":"w","b":3},{"w":"sun","pos":"名詞","m":"太陽","ex":"The sun is bright today.","ja":"今日は太陽が明るいです。","t":"w","b":3},{"w":"rain","pos":"名詞・動詞","m":"雨、雨が降る","ex":"It will rain tomorrow.","ja":"明日は雨が降るでしょう。","t":"w","b":3},{"w":"snow","pos":"名詞","m":"雪","ex":"Snow covers the mountains.","ja":"雪が山々をおおっています。","t":"w","b":3},{"w":"moon","pos":"名詞","m":"月","ex":"The moon is round tonight.","ja":"今夜の月は丸いです。","t":"w","b":3},{"w":"star","pos":"名詞","m":"星","ex":"I can see many stars tonight.","ja":"今夜はたくさんの星が見えます。","t":"w","b":3},{"w":"cloud","pos":"名詞","m":"雲","ex":"White clouds move slowly.","ja":"白い雲がゆっくり動いています。","t":"w","b":3},{"w":"wind","pos":"名詞","m":"風","ex":"The wind is strong today.","ja":"今日は風が強いです。","t":"w","b":3},{"w":"weather","pos":"名詞","m":"天気","ex":"How is the weather today?","ja":"今日の天気はどうですか。","t":"w","b":3},{"w":"flower","pos":"名詞","m":"花","ex":"Flowers bloom in spring.","ja":"春には花が咲きます。","t":"w","b":3},{"w":"tree","pos":"名詞","m":"木","ex":"That tree is very old.","ja":"あの木はとても古いです。","t":"w","b":3},{"w":"leaf","pos":"名詞","m":"葉","ex":"The leaves turn red in fall.","ja":"葉は秋に赤くなります。","t":"w","b":3},{"w":"sea","pos":"名詞","m":"海","ex":"We swim in the sea in summer.","ja":"夏には海で泳ぎます。","t":"w","b":3},{"w":"river","pos":"名詞","m":"川","ex":"The river is long and wide.","ja":"その川は長くて広いです。","t":"w","b":3},{"w":"mountain","pos":"名詞","m":"山","ex":"That mountain is Mt. Fuji.","ja":"あの山は富士山です。","t":"w","b":3},{"w":"lake","pos":"名詞","m":"湖","ex":"Fish live in this lake.","ja":"この湖には魚が住んでいます。","t":"w","b":3},{"w":"forest","pos":"名詞","m":"森、林","ex":"The forest is quiet and green.","ja":"森は静かで緑です。","t":"w","b":3},{"w":"field","pos":"名詞","m":"野原、畑、分野","ex":"Children play in the field.","ja":"子どもたちは野原で遊びます。","t":"w","b":3},{"w":"horse","pos":"名詞","m":"馬","ex":"Horses run fast.","ja":"馬は速く走ります。","t":"w","b":3},{"w":"cow","pos":"名詞","m":"牛（雌）","ex":"A cow eats grass.","ja":"牛は草を食べます。","t":"w","b":3},{"w":"pig","pos":"名詞","m":"豚","ex":"The pig is big and pink.","ja":"その豚は大きくてピンク色です。","t":"w","b":3},{"w":"rabbit","pos":"名詞","m":"ウサギ","ex":"A rabbit has long ears.","ja":"ウサギは長い耳をしています。","t":"w","b":3},{"w":"bear","pos":"名詞","m":"クマ","ex":"The bear lives in the forest.","ja":"クマは森に住んでいます。","t":"w","b":3},{"w":"lion","pos":"名詞","m":"ライオン","ex":"A lion is a strong animal.","ja":"ライオンは強い動物です。","t":"w","b":3},{"w":"monkey","pos":"名詞","m":"サル","ex":"Monkeys live in this mountain.","ja":"この山にはサルが住んでいます。","t":"w","b":3},{"w":"elephant","pos":"名詞","m":"ゾウ","ex":"The elephant is the biggest animal here.","ja":"ゾウはここでいちばん大きな動物です。","t":"w","b":3},{"w":"animal","pos":"名詞","m":"動物","ex":"All animals need water.","ja":"すべての動物には水が必要です。","t":"w","b":3},{"w":"sick","pos":"形容詞","m":"病気の、気分が悪い","ex":"I feel sick today.","ja":"今日は気分が悪いです。","t":"w","b":3},{"w":"healthy","pos":"形容詞","m":"健康な","ex":"Eating vegetables is healthy.","ja":"野菜を食べることは健康的です。","t":"w","b":3},{"w":"strong","pos":"形容詞","m":"強い","ex":"He is a strong boy.","ja":"彼は強い少年です。","t":"w","b":3},{"w":"weak","pos":"形容詞","m":"弱い","ex":"The old man is weak now.","ja":"その老人は今は弱っています。","t":"w","b":3},{"w":"young","pos":"形容詞","m":"若い","ex":"Young people like this music.","ja":"若い人々はこの音楽が好きです。","t":"w","b":3},{"w":"old","pos":"形容詞","m":"年のとった、古い","ex":"My grandfather is old but healthy.","ja":"祖父は年をとっていますが健康です。","t":"w","b":3},{"w":"new","pos":"形容詞","m":"新しい","ex":"I bought a new bike.","ja":"新しい自転車を買いました。","t":"w","b":3},{"w":"same","pos":"形容詞","m":"同じ","ex":"We are in the same class.","ja":"わたしたちは同じクラスです。","t":"w","b":3},{"w":"different","pos":"形容詞","m":"異なる、違う","ex":"This problem is different from that one.","ja":"この問題はあれとは違います。","t":"w","b":3},{"w":"important","pos":"形容詞","m":"大切な、重要な","ex":"English is important for us.","ja":"英語はわたしたちにとって大切です。","t":"w","b":3},{"w":"easy","pos":"形容詞","m":"簡単な、やさしい","ex":"This question is easy.","ja":"この質問は簡単です。","t":"w","b":3},{"w":"difficult","pos":"形容詞","m":"難しい","ex":"The problem was difficult for me.","ja":"その問題はわたしには難しかったです。","t":"w","b":3},{"w":"free","pos":"形容詞","m":"暇な、自由な、無料の","ex":"Are you free tomorrow?","ja":"明日は暇ですか。","t":"w","b":3},{"w":"full","pos":"形容詞","m":"いっぱいの、満ちた","ex":"The room is full of people.","ja":"部屋は人々でいっぱいです。","t":"w","b":3},{"w":"glad","pos":"形容詞","m":"うれしい、喜んで","ex":"I am glad to meet you.","ja":"お会いできてうれしいです。","t":"w","b":3},{"w":"sorry","pos":"形容詞","m":"残念な、ごめんなさい","ex":"I am sorry. I am late.","ja":"ごめんなさい。遅れました。","t":"w","b":3},{"w":"sure","pos":"形容詞","m":"確信して、確かな","ex":"He is sure of his answer.","ja":"彼は自分の答えに自信があります。","t":"w","b":3},{"w":"body","pos":"名詞","m":"体","ex":"Exercise is good for your body.","ja":"運動は体によいです。","t":"w","b":3},{"w":"true","pos":"形容詞","m":"本当の、本物の","ex":"Is this story true?","ja":"この話は本当ですか。","t":"w","b":3},{"w":"right","pos":"形容詞","m":"正しい、右の","ex":"Your answer is right.","ja":"あなたの答えは正しいです。","t":"w","b":3},{"w":"wrong","pos":"形容詞","m":"間違った","ex":"That is wrong. Try again.","ja":"それは違います。もう一度やってみなさい。","t":"w","b":3},{"w":"dark","pos":"形容詞","m":"暗い","ex":"It is dark in this room.","ja":"この部屋は暗いです。","t":"w","b":3},{"w":"bright","pos":"形容詞","m":"明るい、輝く","ex":"The room is bright and clean.","ja":"部屋は明るくてきれいです。","t":"w","b":3},{"w":"clean","pos":"形容詞","m":"きれいな、清潔な","ex":"Keep your room clean.","ja":"部屋をきれいにしておきなさい。","t":"w","b":3},{"w":"vegetable","pos":"名詞","m":"野菜","ex":"Eat more vegetables.","ja":"野菜をもっと食べなさい。","t":"w","b":3},{"w":"fruit","pos":"名詞","m":"果物、フルーツ","ex":"Fruit is good for your health.","ja":"果物は健康によいです。","t":"w","b":3},{"w":"shoulder","pos":"名詞","m":"肩","ex":"He hurt his shoulder in the game.","ja":"彼は試合で肩をけがしました。","t":"w","b":3},{"w":"put","pos":"動詞","m":"置く、入れる","ex":"I put the book in my bag.","ja":"わたしは本をカバンに入れました。","t":"w","b":4},{"w":"cut","pos":"動詞","m":"切る","ex":"He cuts the paper with scissors.","ja":"彼ははさみで紙を切ります。","t":"w","b":4},{"w":"call","pos":"動詞","m":"呼ぶ、電話する、〜と呼ぶ","ex":"Please call me tonight.","ja":"今夜電話してください。","t":"w","b":4},{"w":"tell","pos":"動詞","m":"話す、教える","ex":"Tell me the story.","ja":"その話を聞かせてください。","t":"w","b":4},{"w":"say","pos":"動詞","m":"言う","ex":"She says hello to everyone.","ja":"彼女はみんなにあいさつします。","t":"w","b":4},{"w":"ask","pos":"動詞","m":"尋ねる、頼む","ex":"Ask the teacher.","ja":"先生に聞きなさい。","t":"w","b":4},{"w":"repeat","pos":"動詞","m":"繰り返す","ex":"Repeat after me, please.","ja":"わたしのあとに繰り返してください。","t":"w","b":4},{"w":"talk","pos":"動詞","m":"話す","ex":"We talk about our school trip.","ja":"わたしたちは修学旅行について話します。","t":"w","b":4},{"w":"use","pos":"動詞","m":"使う","ex":"Use this pen, please.","ja":"このペンを使ってください。","t":"w","b":4},{"w":"find","pos":"動詞","m":"見つける","ex":"I find my key under the desk.","ja":"机の下で鍵を見つけます。","t":"w","b":4},{"w":"try","pos":"動詞","m":"試す、〜してみる","ex":"Try this cake. It is delicious.","ja":"このケーキを食べてみて。おいしいよ。","t":"w","b":4},{"w":"hope","pos":"動詞","m":"望む、〜だといいなと思う","ex":"I hope you enjoy the trip.","ja":"旅行を楽しんでくれるといいなと思います。","t":"w","b":4},{"w":"wish","pos":"動詞","m":"願う、〜ならいいのにと思う","ex":"I wish you good luck.","ja":"幸運を祈ります。","t":"w","b":4},{"w":"wait","pos":"動詞","m":"待つ","ex":"We wait for the bus here.","ja":"わたしたちはここでバスを待ちます。","t":"w","b":4},{"w":"stop","pos":"動詞","m":"止まる、止める","ex":"Stop the car here.","ja":"ここで車を止めなさい。","t":"w","b":4},{"w":"move","pos":"動詞","m":"動く、動かす、移る","ex":"Please move your chair a little.","ja":"いすを少し動かしてください。","t":"w","b":4},{"w":"turn","pos":"動詞","m":"曲がる、回る、〜になる","ex":"Turn left at the corner.","ja":"角を左に曲がりなさい。","t":"w","b":4},{"w":"jump","pos":"動詞","m":"跳ぶ、ジャンプする","ex":"The children jump with joy.","ja":"子どもたちは喜んで跳びます。","t":"w","b":4},{"w":"show","pos":"動詞","m":"見せる、示す","ex":"He shows me his photos.","ja":"彼はわたしに写真を見せてくれます。","t":"w","b":4},{"w":"send","pos":"動詞","m":"送る","ex":"Send me a letter, please.","ja":"手紙を送ってください。","t":"w","b":4},{"w":"bring","pos":"動詞","m":"持ってくる、連れてくる","ex":"Bring your lunch tomorrow.","ja":"明日はお弁当を持ってきなさい。","t":"w","b":4},{"w":"catch","pos":"動詞","m":"捕る、つかまえる","ex":"She catches the ball well.","ja":"彼女はボールを上手に取ります。","t":"w","b":4},{"w":"throw","pos":"動詞","m":"投げる","ex":"Throw the ball to me.","ja":"ボールをわたしに投げてください。","t":"w","b":4},{"w":"hit","pos":"動詞","m":"打つ、当たる","ex":"The ball hits the window.","ja":"ボールが窓に当たります。","t":"w","b":4},{"w":"kick","pos":"動詞","m":"ける","ex":"Kick the ball hard.","ja":"ボールを強くけりなさい。","t":"w","b":4},{"w":"climb","pos":"動詞","m":"登る","ex":"They climb the mountain in summer.","ja":"彼らは夏にその山に登ります。","t":"w","b":4},{"w":"fly","pos":"動詞","m":"飛ぶ","ex":"Birds fly in the sky.","ja":"鳥は空を飛びます。","t":"w","b":4},{"w":"drop","pos":"動詞","m":"落とす、落ちる","ex":"Don't drop the glass.","ja":"コップを落とさないでください。","t":"w","b":4},{"w":"push","pos":"動詞","m":"押す","ex":"Don't push me.","ja":"押さないでください。","t":"w","b":4},{"w":"pull","pos":"動詞","m":"引く","ex":"Pull the door toward you.","ja":"ドアを手前に引きなさい。","t":"w","b":4},{"w":"carry","pos":"動詞","m":"運ぶ、持つ","ex":"I carry a heavy bag.","ja":"わたしは重いカバンを持ちます。","t":"w","b":4},{"w":"lift","pos":"動詞","m":"持ち上げる","ex":"He lifts the heavy box.","ja":"彼は重い箱を持ち上げます。","t":"w","b":4},{"w":"keep","pos":"動詞","m":"保つ、〜し続ける","ex":"Keep this secret, please.","ja":"この秘密は守ってください。","t":"w","b":4},{"w":"leave","pos":"動詞","m":"去る、残す、置いていく","ex":"Leave the bag here.","ja":"カバンはここに置いていきなさい。","t":"w","b":4},{"w":"arrive","pos":"動詞","m":"到着する","ex":"We arrive at the station at nine.","ja":"わたしたちは9時に駅に着きます。","t":"w","b":4},{"w":"visit","pos":"動詞","m":"訪れる、訪問する","ex":"I visit my grandmother every month.","ja":"わたしは毎月祖母を訪ねます。","t":"w","b":4},{"w":"travel","pos":"動詞","m":"旅行する","ex":"We travel by train in summer.","ja":"夏には電車で旅行します。","t":"w","b":4},{"w":"stay","pos":"動詞","m":"滞在する、泊まる","ex":"Let's stay at this hotel.","ja":"このホテルに泊まりましょう。","t":"w","b":4},{"w":"return","pos":"動詞","m":"戻る、返す","ex":"He returns home at six.","ja":"彼は6時に家に帰ります。","t":"w","b":4},{"w":"hurry","pos":"動詞","m":"急ぐ","ex":"Hurry, or we will be late.","ja":"急がないと遅れます。","t":"w","b":4},{"w":"remember","pos":"動詞","m":"覚えている、思い出す","ex":"I remember his face well.","ja":"彼の顔をよく覚えています。","t":"w","b":4},{"w":"forget","pos":"動詞","m":"忘れる","ex":"Don't forget your umbrella.","ja":"傘を忘れないでください。","t":"w","b":4},{"w":"understand","pos":"動詞","m":"分かる、理解する","ex":"Do you understand this sentence?","ja":"この文が分かりますか。","t":"w","b":4},{"w":"believe","pos":"動詞","m":"信じる","ex":"I believe you.","ja":"あなたを信じます。","t":"w","b":4},{"w":"feel","pos":"動詞","m":"感じる","ex":"She feels sick today.","ja":"彼女は今日気分が悪いです。","t":"w","b":4},{"w":"smell","pos":"動詞","m":"においがする、においをかぐ","ex":"This soup smells good.","ja":"このスープはよいにおいがします。","t":"w","b":4},{"w":"taste","pos":"動詞","m":"味がする、味見する","ex":"Taste this soup, please.","ja":"このスープを味見してください。","t":"w","b":4},{"w":"touch","pos":"動詞","m":"触る","ex":"The baby touched the flower.","ja":"赤ちゃんは花に触れました。","t":"w","b":4},{"w":"become","pos":"動詞","m":"〜になる","ex":"He became a doctor.","ja":"彼は医者になりました。","t":"w","b":4},{"w":"grow","pos":"動詞","m":"育つ、成長する、栽培する","ex":"Children grow fast.","ja":"子どもは速く育ちます。","t":"w","b":4},{"w":"change","pos":"動詞・名詞","m":"変わる、変える、着替える","ex":"Wait until the light changes.","ja":"信号が変わるまで待ちなさい。","t":"w","b":4},{"w":"choose","pos":"動詞","m":"選ぶ","ex":"She chooses a red dress.","ja":"彼女は赤いドレスを選びます。","t":"w","b":4},{"w":"decide","pos":"動詞","m":"決める、決心する","ex":"Let's decide the date today.","ja":"今日日付を決めましょう。","t":"w","b":4},{"w":"join","pos":"動詞","m":"加わる、参加する","ex":"He joins the soccer club.","ja":"彼はサッカークラブに入ります。","t":"w","b":4},{"w":"win","pos":"動詞","m":"勝つ","ex":"Our team won the game.","ja":"わたしたちのチームは試合に勝ちました。","t":"w","b":4},{"w":"lose","pos":"動詞","m":"負ける、失う","ex":"They lost the game by one point.","ja":"彼らは1点差で試合に負けました。","t":"w","b":4},{"w":"miss","pos":"動詞","m":"乗り遅れる、逃す、恋しく思う","ex":"Don't miss the train.","ja":"電車に乗り遅れないでください。","t":"w","b":4},{"w":"practice","pos":"動詞・名詞","m":"練習する、練習","ex":"Practice the piano every day.","ja":"毎日ピアノを練習しなさい。","t":"w","b":4},{"w":"enjoy","pos":"動詞","m":"楽しむ","ex":"We enjoy playing tennis.","ja":"わたしたちはテニスを楽しみます。","t":"w","b":4},{"w":"spend","pos":"動詞","m":"（時間・お金を）使う、過ごす","ex":"I spend my Sundays reading.","ja":"日曜日は読書をして過ごします。","t":"w","b":4},{"w":"save","pos":"動詞","m":"貯める、節約する、救う","ex":"He saves money for a bike.","ja":"彼は自転車のためにお金を貯めています。","t":"w","b":4},{"w":"cost","pos":"動詞・名詞","m":"（費用が）かかる、費用","ex":"It costs 500 yen.","ja":"それは500円かかります。","t":"w","b":4},{"w":"pay","pos":"動詞","m":"払う","ex":"I pay 1,000 yen for the book.","ja":"その本に1,000円払います。","t":"w","b":4},{"w":"sell","pos":"動詞","m":"売る","ex":"She sells flowers at the market.","ja":"彼女は市場で花を売っています。","t":"w","b":4},{"w":"build","pos":"動詞","m":"建てる、作る","ex":"I want to build a small house.","ja":"小さな家を建てたいです。","t":"w","b":4},{"w":"break","pos":"動詞","m":"壊す、割る","ex":"Don't break the window.","ja":"窓を割らないでください。","t":"w","b":4},{"w":"fix","pos":"動詞","m":"直す、修理する","ex":"He fixes my bike.","ja":"彼はわたしの自転車を直します。","t":"w","b":4},{"w":"draw","pos":"動詞","m":"（線で）描く、引く","ex":"Draw a picture of your family.","ja":"家族の絵を描きなさい。","t":"w","b":4},{"w":"paint","pos":"動詞","m":"（絵の具で）描く、塗る","ex":"She paints the wall blue.","ja":"彼女は壁を青く塗ります。","t":"w","b":4},{"w":"dance","pos":"動詞・名詞","m":"踊る、ダンス","ex":"We dance at the festival.","ja":"わたしたちは祭りで踊ります。","t":"w","b":4},{"w":"laugh","pos":"動詞","m":"（声を出して）笑う","ex":"The baby is laughing.","ja":"赤ちゃんが笑っています。","t":"w","b":4},{"w":"smile","pos":"動詞・名詞","m":"ほほえむ、笑顔","ex":"Smile, please!","ja":"笑ってください！","t":"w","b":4},{"w":"cry","pos":"動詞","m":"泣く、叫ぶ","ex":"The baby cried all night.","ja":"赤ちゃんは一晩中泣きました。","t":"w","b":4},{"w":"shout","pos":"動詞","m":"叫ぶ","ex":"Why do you shout?","ja":"なぜ叫ぶのですか。","t":"w","b":4},{"w":"wear","pos":"動詞","m":"身につけている、着ている","ex":"He wears a blue cap.","ja":"彼は青い帽子をかぶっています。","t":"w","b":4},{"w":"wash","pos":"動詞","m":"洗う","ex":"Wash your hands with soap.","ja":"石けんで手を洗いなさい。","t":"w","b":4},{"w":"brush","pos":"動詞","m":"磨く、ブラシをかける","ex":"Brush your teeth after meals.","ja":"食後に歯を磨きなさい。","t":"w","b":4},{"w":"borrow","pos":"動詞","m":"借りる","ex":"Can I borrow your pen?","ja":"ペンを借りてもいいですか。","t":"w","b":4},{"w":"tonight","pos":"名詞・副詞","m":"今夜（は）","ex":"The moon is beautiful tonight.","ja":"今夜は月が美しいです。","t":"w","b":4},{"w":"ride","pos":"動詞","m":"乗る、乗せる","ex":"Ride your bike carefully.","ja":"気をつけて自転車に乗りなさい。","t":"w","b":4},{"w":"drive","pos":"動詞","m":"運転する","ex":"He drives to work every day.","ja":"彼は毎日車で通勤します。","t":"w","b":4},{"w":"cross","pos":"動詞・名詞","m":"横切る、渡る、十字","ex":"We crossed the river by boat.","ja":"わたしたちは船で川を渡りました。","t":"w","b":4},{"w":"pass","pos":"動詞","m":"通る、合格する、渡す","ex":"Let me pass, please.","ja":"通してください。","t":"w","b":4},{"w":"wave","pos":"動詞・名詞","m":"手を振る、波","ex":"She waved her hand to us.","ja":"彼女はわたしたちに手を振りました。","t":"w","b":4},{"w":"enter","pos":"動詞","m":"入る","ex":"The train enters the station.","ja":"電車が駅に入ってきます。","t":"w","b":4},{"w":"knock","pos":"動詞","m":"ノックする、たたく","ex":"Someone is knocking at the door.","ja":"だれかがドアをノックしています。","t":"w","b":4},{"w":"follow","pos":"動詞","m":"ついていく、従う","ex":"Follow me, please.","ja":"わたしについてきてください。","t":"w","b":4},{"w":"lead","pos":"動詞","m":"導く、先に行く","ex":"She leads the team well.","ja":"彼女はチームをよく導きます。","t":"w","b":4},{"w":"reach","pos":"動詞","m":"届く、到着する","ex":"We reached the top of the mountain.","ja":"わたしたちは山の頂上に着きました。","t":"w","b":4},{"w":"soon","pos":"副詞","m":"もうすぐ、やがて","ex":"Spring comes soon.","ja":"春はもうすぐ来ます。","t":"w","b":4},{"w":"late","pos":"形容詞・副詞","m":"遅い、遅く","ex":"He came home late yesterday.","ja":"彼は昨日遅く帰宅しました。","t":"w","b":4},{"w":"early","pos":"形容詞・副詞","m":"早い、早く","ex":"Get up early tomorrow.","ja":"明日は早く起きなさい。","t":"w","b":4},{"w":"slowly","pos":"副詞","m":"ゆっくりと","ex":"Walk slowly, please.","ja":"ゆっくり歩いてください。","t":"w","b":4},{"w":"quickly","pos":"副詞","m":"速く、すばやく","ex":"She speaks English quickly.","ja":"彼女は英語を速く話します。","t":"w","b":4},{"w":"quietly","pos":"副詞","m":"静かに","ex":"He answered quietly.","ja":"彼は静かに答えました。","t":"w","b":4},{"w":"happily","pos":"副詞","m":"幸せに、喜んで","ex":"The children are playing happily.","ja":"子どもたちは楽しそうに遊んでいます。","t":"w","b":4},{"w":"carefully","pos":"副詞","m":"注意深く","ex":"Read the sentence carefully.","ja":"その文を注意深く読みなさい。","t":"w","b":4},{"w":"lend","pos":"動詞","m":"貸す","ex":"Can you lend me your dictionary?","ja":"辞書を貸してくれますか。","t":"w","b":4},{"w":"invite","pos":"動詞","m":"招待する、招く","ex":"I invited my friends to the party.","ja":"わたしは友だちをパーティーに招待しました。","t":"w","b":4},{"w":"promise","pos":"動詞・名詞","m":"約束する、約束","ex":"Promise me you will come.","ja":"来ると約束してください。","t":"w","b":4},{"w":"agree","pos":"動詞","m":"同意する、賛成する","ex":"I agree with you.","ja":"わたしはあなたに同意します。","t":"w","b":5},{"w":"reply","pos":"動詞","m":"返事する、答える","ex":"Please reply to my letter.","ja":"わたしの手紙に返事をください。","t":"w","b":5},{"w":"introduce","pos":"動詞","m":"紹介する、導入する","ex":"Let me introduce my friend.","ja":"友だちを紹介させてください。","t":"w","b":5},{"w":"explain","pos":"動詞","m":"説明する","ex":"Please explain the rule.","ja":"そのルールを説明してください。","t":"w","b":5},{"w":"describe","pos":"動詞","m":"描写する、説明する","ex":"Can you describe your town?","ja":"あなたの町を説明できますか。","t":"w","b":5},{"w":"memorize","pos":"動詞","m":"暗記する、覚える","ex":"Try to memorize ten words a day.","ja":"1日に10語覚えるようにしなさい。","t":"w","b":5},{"w":"review","pos":"動詞","m":"復習する、見直す","ex":"Review the words before the test.","ja":"テストの前に単語を復習しなさい。","t":"w","b":5},{"w":"prepare","pos":"動詞","m":"準備する、用意する","ex":"Prepare your books for tomorrow.","ja":"明日の本を用意しなさい。","t":"w","b":5},{"w":"plan","pos":"動詞・名詞","m":"計画する、計画","ex":"I plan to visit Kyoto.","ja":"京都を訪れる計画です。","t":"w","b":5},{"w":"report","pos":"動詞","m":"報告する、報道する","ex":"He reports the news.","ja":"彼はニュースを報じます。","t":"w","b":5},{"w":"discuss","pos":"動詞","m":"話し合う、議論する","ex":"Let's discuss the plan.","ja":"その計画について話し合いましょう。","t":"w","b":5},{"w":"collect","pos":"動詞","m":"集める","ex":"She collects old stamps.","ja":"彼女は古い切手を集めています。","t":"w","b":5},{"w":"create","pos":"動詞","m":"創造する、作り出す","ex":"I create games on my computer.","ja":"わたしはコンピューターでゲームを作ります。","t":"w","b":5},{"w":"design","pos":"動詞","m":"デザインする、設計する","ex":"He designs posters for the festival.","ja":"彼は祭りのポスターをデザインします。","t":"w","b":5},{"w":"discover","pos":"動詞","m":"発見する","ex":"Scientists discover new stars.","ja":"科学者は新しい星を発見します。","t":"w","b":5},{"w":"invent","pos":"動詞","m":"発明する","ex":"Who invented this machine?","ja":"だれがこの機械を発明しましたか。","t":"w","b":5},{"w":"protect","pos":"動詞","m":"守る、保護する","ex":"We protect nature.","ja":"わたしたちは自然を守ります。","t":"w","b":5},{"w":"recycle","pos":"動詞","m":"リサイクルする","ex":"Recycle paper and bottles.","ja":"紙と瓶をリサイクルしなさい。","t":"w","b":5},{"w":"plant","pos":"動詞・名詞","m":"植える、植物","ex":"We plant trees every spring.","ja":"わたしたちは毎春木を植えます。","t":"w","b":5},{"w":"pollution","pos":"名詞","m":"汚染","ex":"Pollution is a serious problem.","ja":"汚染は深刻な問題です。","t":"w","b":5},{"w":"environment","pos":"名詞","m":"環境","ex":"The environment is important.","ja":"環境は大切です。","t":"w","b":5},{"w":"energy","pos":"名詞","m":"エネルギー","ex":"We need clean energy.","ja":"クリーンなエネルギーが必要です。","t":"w","b":5},{"w":"science","pos":"名詞","m":"科学","ex":"Science is interesting.","ja":"科学はおもしろいです。","t":"w","b":5},{"w":"history","pos":"名詞","m":"歴史","ex":"History teaches us many things.","ja":"歴史はわたしたちに多くのことを教えます。","t":"w","b":5},{"w":"culture","pos":"名詞","m":"文化","ex":"Japanese culture is popular abroad.","ja":"日本の文化は海外で人気です。","t":"w","b":5},{"w":"custom","pos":"名詞","m":"習慣、風習","ex":"We have our own customs.","ja":"わたしたちには独自の習慣があります。","t":"w","b":5},{"w":"tradition","pos":"名詞","m":"伝統","ex":"This festival has a long tradition.","ja":"この祭りには長い伝統があります。","t":"w","b":5},{"w":"world","pos":"名詞","m":"世界","ex":"The world is wide.","ja":"世界は広いです。","t":"w","b":5},{"w":"country","pos":"名詞","m":"国","ex":"Japan is an island country.","ja":"日本は島国です。","t":"w","b":5},{"w":"language","pos":"名詞","m":"言語、言葉","ex":"English is a useful language.","ja":"英語は役に立つ言語です。","t":"w","b":5},{"w":"peace","pos":"名詞","m":"平和","ex":"Peace is important for everyone.","ja":"平和はだれにとっても大切です。","t":"w","b":5},{"w":"society","pos":"名詞","m":"社会","ex":"We are in the same society.","ja":"わたしたちは同じ社会にいます。","t":"w","b":5},{"w":"life","pos":"名詞","m":"生活、命、人生","ex":"Life in the country is quiet.","ja":"田舎の生活は静かです。","t":"w","b":5},{"w":"health","pos":"名詞","m":"健康","ex":"Health is more important than money.","ja":"健康はお金より大切です。","t":"w","b":5},{"w":"future","pos":"名詞","m":"未来、将来","ex":"He has a bright future.","ja":"彼には明るい未来があります。","t":"w","b":5},{"w":"dream","pos":"名詞","m":"夢","ex":"My dream is to be a teacher.","ja":"わたしの夢は先生になることです。","t":"w","b":5},{"w":"courage","pos":"名詞","m":"勇気","ex":"He has the courage to try new things.","ja":"彼には新しいことに挑戦する勇気があります。","t":"w","b":5},{"w":"chance","pos":"名詞","m":"機会、偶然","ex":"This is a good chance for you.","ja":"これはあなたによい機会です。","t":"w","b":5},{"w":"idea","pos":"名詞","m":"考え、アイデア","ex":"I have a great idea.","ja":"よい考えがあります。","t":"w","b":5},{"w":"problem","pos":"名詞","m":"問題、困りごと","ex":"The problem is difficult.","ja":"その問題は難しいです。","t":"w","b":5},{"w":"reason","pos":"名詞","m":"理由","ex":"The reason is simple.","ja":"理由は単純です。","t":"w","b":5},{"w":"example","pos":"名詞","m":"例","ex":"For example, this word has two meanings.","ja":"たとえば、この単語には2つの意味があります。","t":"w","b":5},{"w":"result","pos":"名詞","m":"結果","ex":"The result was good.","ja":"結果はよかったです。","t":"w","b":5},{"w":"point","pos":"名詞","m":"点、要点","ex":"The point is clear.","ja":"要点は明確です。","t":"w","b":5},{"w":"matter","pos":"名詞","m":"事柄、問題","ex":"What is the matter with you?","ja":"どうしたのですか。","t":"w","b":5},{"w":"news","pos":"名詞","m":"知らせ、ニュース","ex":"This is a piece of good news.","ja":"これはよい知らせです。","t":"w","b":5},{"w":"information","pos":"名詞","m":"情報","ex":"I got some information from the Internet.","ja":"インターネットから情報を得ました。","t":"w","b":5},{"w":"message","pos":"名詞","m":"伝言、メッセージ","ex":"Send me a message, please.","ja":"メッセージを送ってください。","t":"w","b":5},{"w":"mail","pos":"名詞","m":"郵便、手紙","ex":"The mail comes at ten every morning.","ja":"郵便は毎朝10時に来ます。","t":"w","b":5},{"w":"Internet","pos":"名詞","m":"インターネット","ex":"The Internet is very useful.","ja":"インターネットはとても便利です。","t":"w","b":5},{"w":"website","pos":"名詞","m":"ウェブサイト","ex":"This website is helpful.","ja":"このウェブサイトは役に立ちます。","t":"w","b":5},{"w":"video","pos":"名詞・形容詞","m":"ビデオ、動画","ex":"I enjoy playing video games.","ja":"わたしはテレビゲームを楽しみます。","t":"w","b":5},{"w":"movie","pos":"名詞","m":"映画","ex":"We saw a movie last night.","ja":"昨夜映画を見ました。","t":"w","b":5},{"w":"baseball","pos":"名詞","m":"野球","ex":"Baseball is popular in Japan.","ja":"野球は日本で人気です。","t":"w","b":5},{"w":"soccer","pos":"名詞","m":"サッカー","ex":"He plays soccer after school.","ja":"彼は放課後サッカーをします。","t":"w","b":5},{"w":"tennis","pos":"名詞","m":"テニス","ex":"Tennis is my favorite sport.","ja":"テニスはわたしのお気に入りのスポーツです。","t":"w","b":5},{"w":"sport","pos":"名詞","m":"スポーツ、運動","ex":"Sports are good for health.","ja":"スポーツは健康によいです。","t":"w","b":5},{"w":"game","pos":"名詞","m":"試合、ゲーム","ex":"Our team won the game.","ja":"わたしたちのチームは試合に勝ちました。","t":"w","b":5},{"w":"player","pos":"名詞","m":"選手、演奏者","ex":"He is the best player on the team.","ja":"彼はチームでいちばんの選手です。","t":"w","b":5},{"w":"club","pos":"名詞","m":"クラブ、部","ex":"Join our club.","ja":"わたしたちのクラブに入ってください。","t":"w","b":5},{"w":"concert","pos":"名詞","m":"コンサート、演奏会","ex":"The concert is on Sunday.","ja":"コンサートは日曜日です。","t":"w","b":5},{"w":"piano","pos":"名詞","m":"ピアノ","ex":"She plays the piano well.","ja":"彼女はピアノを上手に弾きます。","t":"w","b":5},{"w":"guitar","pos":"名詞","m":"ギター","ex":"He plays the guitar every day.","ja":"彼は毎日ギターを弾きます。","t":"w","b":5},{"w":"trip","pos":"名詞","m":"旅行","ex":"We have a school trip in May.","ja":"5月に修学旅行があります。","t":"w","b":5},{"w":"picnic","pos":"名詞","m":"ピクニック、遠足","ex":"I enjoyed the picnic.","ja":"ピクニックを楽しみました。","t":"w","b":5},{"w":"party","pos":"名詞","m":"パーティー","ex":"The party starts at five.","ja":"パーティーは5時に始まります。","t":"w","b":5},{"w":"birthday","pos":"名詞","m":"誕生日","ex":"My birthday is in August.","ja":"わたしの誕生日は8月です。","t":"w","b":5},{"w":"present","pos":"名詞","m":"贈り物、現在","ex":"This is a present for you.","ja":"これはあなたへのプレゼントです。","t":"w","b":5},{"w":"type","pos":"名詞","m":"種類、タイプ","ex":"What type of music do you like?","ja":"どんなタイプの音楽が好きですか。","t":"w","b":5},{"w":"light","pos":"形容詞・名詞","m":"軽い、明るい、光","ex":"This bag is very light.","ja":"このカバンはとても軽いです。","t":"w","b":5},{"w":"red","pos":"形容詞・名詞","m":"赤い、赤","ex":"The apple is red.","ja":"そのりんごは赤いです。","t":"w","b":5},{"w":"blue","pos":"形容詞・名詞","m":"青い、青","ex":"The sky is blue today.","ja":"今日の空は青いです。","t":"w","b":5},{"w":"green","pos":"形容詞・名詞","m":"緑の、緑","ex":"She wears a green dress.","ja":"彼女は緑のドレスを着ています。","t":"w","b":5},{"w":"yellow","pos":"形容詞・名詞","m":"黄色い、黄色","ex":"The banana is yellow.","ja":"そのバナナは黄色いです。","t":"w","b":5},{"w":"black","pos":"形容詞・名詞","m":"黒い、黒","ex":"He has a black cat.","ja":"彼は黒い猫を飼っています。","t":"w","b":5},{"w":"white","pos":"形容詞・名詞","m":"白い、白","ex":"Snow is white.","ja":"雪は白いです。","t":"w","b":5},{"w":"brown","pos":"形容詞・名詞","m":"茶色い、茶色","ex":"The bear is brown.","ja":"そのクマは茶色です。","t":"w","b":5},{"w":"pink","pos":"形容詞・名詞","m":"ピンク色の、ピンク","ex":"She likes pink flowers.","ja":"彼女はピンクの花が好きです。","t":"w","b":5},{"w":"famous","pos":"形容詞","m":"有名な","ex":"He is a famous singer.","ja":"彼は有名な歌手です。","t":"w","b":5},{"w":"popular","pos":"形容詞","m":"人気のある","ex":"This game is popular with children.","ja":"このゲームは子どもに人気です。","t":"w","b":5},{"w":"interesting","pos":"形容詞","m":"おもしろい、興味深い","ex":"This book is very interesting.","ja":"この本はとてもおもしろいです。","t":"w","b":5},{"w":"exciting","pos":"形容詞","m":"わくわくする、興奮させる","ex":"The story is exciting.","ja":"その物語はわくわくします。","t":"w","b":5},{"w":"surprised","pos":"形容詞","m":"驚いた","ex":"I was surprised at the news.","ja":"その知らせに驚きました。","t":"w","b":5},{"w":"interested","pos":"形容詞","m":"興味を持った","ex":"She is interested in science.","ja":"彼女は科学に興味があります。","t":"w","b":5},{"w":"useful","pos":"形容詞","m":"役に立つ、便利な","ex":"The Internet is useful for study.","ja":"インターネットは勉強に役立ちます。","t":"w","b":5},{"w":"helpful","pos":"形容詞","m":"役に立つ、助けになる","ex":"This dictionary is helpful.","ja":"この辞書は役に立ちます。","t":"w","b":5},{"w":"dangerous","pos":"形容詞","m":"危険な","ex":"Be careful. The road is dangerous.","ja":"気をつけて。道は危険です。","t":"w","b":5},{"w":"safe","pos":"形容詞","m":"安全な","ex":"This place is safe for children.","ja":"この場所は子どもにとって安全です。","t":"w","b":5},{"w":"hard","pos":"副詞・形容詞","m":"一生懸命に、硬い","ex":"He works hard every day.","ja":"彼は毎日一生懸命働きます。","t":"w","b":5},{"w":"great","pos":"形容詞","m":"すばらしい、偉大な","ex":"You did a great job.","ja":"よくやりました。","t":"w","b":5},{"w":"wonderful","pos":"形容詞","m":"素晴らしい","ex":"What a wonderful day!","ja":"なんて素晴らしい日でしょう！","t":"w","b":5},{"w":"lovely","pos":"形容詞","m":"かわいらしい、素敵な","ex":"She has a lovely smile.","ja":"彼女は素敵な笑顔をしています。","t":"w","b":5},{"w":"cute","pos":"形容詞","m":"かわいい","ex":"The baby is very cute.","ja":"その赤ちゃんはとてもかわいいです。","t":"w","b":5},{"w":"delicious","pos":"形容詞","m":"おいしい","ex":"This soup is delicious.","ja":"このスープはおいしいです。","t":"w","b":5},{"w":"sweet","pos":"形容詞","m":"甘い","ex":"This cake tastes sweet.","ja":"このケーキは甘い味がします。","t":"w","b":5},{"w":"sour","pos":"形容詞","m":"酸っぱい","ex":"The lemon is sour.","ja":"レモンは酸っぱいです。","t":"w","b":5},{"w":"job","pos":"名詞","m":"仕事、職業","ex":"My father has a new job.","ja":"父は新しい仕事に就きました。","t":"w","b":5},{"w":"office","pos":"名詞","m":"事務所、会社","ex":"Her office is near the station.","ja":"彼女の事務所は駅の近くです。","t":"w","b":5},{"w":"factory","pos":"名詞","m":"工場","ex":"Many people work at the factory.","ja":"多くの人々がその工場で働いています。","t":"w","b":5},{"w":"farm","pos":"名詞","m":"農場、畑","ex":"My uncle works on a farm.","ja":"叔父は農場で働いています。","t":"w","b":5},{"w":"tall","pos":"形容詞","m":"（背が）高い","ex":"I am taller than my brother.","ja":"わたしは弟より背が高いです。","t":"w","b":6},{"w":"high","pos":"形容詞","m":"（位置が）高い","ex":"The wall is very high.","ja":"その壁はとても高いです。","t":"w","b":6},{"w":"short","pos":"形容詞","m":"（背が）低い、短い","ex":"He is a short man.","ja":"彼は背の低い男性です。","t":"w","b":6},{"w":"long","pos":"形容詞","m":"長い","ex":"This river is long.","ja":"この川は長いです。","t":"w","b":6},{"w":"wide","pos":"形容詞","m":"幅の広い","ex":"The desk is wide.","ja":"その机は幅が広いです。","t":"w","b":6},{"w":"heavy","pos":"形容詞","m":"重い","ex":"This bag is too heavy.","ja":"このカバンは重すぎます。","t":"w","b":6},{"w":"rich","pos":"形容詞","m":"お金持ちの、豊かな","ex":"She became rich and famous.","ja":"彼女はお金持ちで有名になりました。","t":"w","b":6},{"w":"how many","pos":"副詞・形容詞","m":"いくつ、どれくらい（数）","ex":"How many students are there?","ja":"生徒は何人いますか。","t":"w","b":6},{"w":"how much","pos":"副詞・形容詞","m":"どれくらい（量・値段）","ex":"How much is this pen?","ja":"このペンはいくらですか。","t":"w","b":6},{"w":"many","pos":"形容詞","m":"多くの（数）","ex":"We have many books.","ja":"わたしたちは本をたくさん持っています。","t":"w","b":6},{"w":"much","pos":"形容詞","m":"多くの（量）","ex":"I don't have much time.","ja":"時間があまりありません。","t":"w","b":6},{"w":"a lot of","pos":"名詞","m":"たくさんの","ex":"There are a lot of flowers.","ja":"花がたくさんあります。","t":"w","b":6},{"w":"some","pos":"形容詞","m":"いくつかの、少しの","ex":"I have some questions.","ja":"質問がいくつかあります。","t":"w","b":6},{"w":"any","pos":"形容詞","m":"いくつかの、どれか","ex":"Do you have any brothers?","ja":"兄弟はいますか。","t":"w","b":6},{"w":"all","pos":"形容詞・代名詞","m":"すべての","ex":"All students must wear uniforms.","ja":"すべての生徒は制服を着なければなりません。","t":"w","b":6},{"w":"every","pos":"形容詞","m":"どの〜も、すべての","ex":"Every student has a dictionary.","ja":"どの生徒も辞書を持っています。","t":"w","b":6},{"w":"each","pos":"形容詞・代名詞","m":"それぞれの、各","ex":"Each child has a locker.","ja":"それぞれの子にロッカーがあります。","t":"w","b":6},{"w":"both","pos":"形容詞・代名詞","m":"両方とも","ex":"Both boys are my friends.","ja":"その少年2人ともわたしの友だちです。","t":"w","b":6},{"w":"another","pos":"形容詞・代名詞","m":"もう一つの、別の","ex":"Give me another cup, please.","ja":"もう1杯ください。","t":"w","b":6},{"w":"other","pos":"形容詞","m":"ほかの","ex":"Where are the other students?","ja":"ほかの生徒たちはどこですか。","t":"w","b":6},{"w":"first","pos":"形容詞・副詞","m":"1番目の、最初の","ex":"This is the first lesson.","ja":"これは1番目のレッスンです。","t":"w","b":6},{"w":"fourth","pos":"形容詞・副詞","m":"4番目の","ex":"Today is the fourth day of our trip.","ja":"今日は旅行の4日目です。","t":"w","b":6},{"w":"third","pos":"形容詞・副詞","m":"3番目の","ex":"Today is the third day.","ja":"今日は3日目です。","t":"w","b":6},{"w":"last","pos":"形容詞","m":"最後の","ex":"This is the last train.","ja":"これは最終電車です。","t":"w","b":6},{"w":"next","pos":"形容詞・副詞","m":"次の、今度の","ex":"Let's meet next Sunday.","ja":"次の日曜日に会いましょう。","t":"w","b":6},{"w":"better","pos":"形容詞・副詞","m":"よりよい、よりよく","ex":"I like this book better than that one.","ja":"あの本よりこの本のほうが好きです。","t":"w","b":6},{"w":"best","pos":"形容詞・副詞","m":"いちばんよい","ex":"This is the best season.","ja":"これがいちばんよい季節です。","t":"w","b":6},{"w":"faster","pos":"副詞・形容詞","m":"より速く、より速い","ex":"He runs faster than me.","ja":"彼はわたしより速く走ります。","t":"w","b":6},{"w":"more","pos":"副詞・形容詞","m":"もっと、より","ex":"This question is more difficult.","ja":"この質問のほうが難しいです。","t":"w","b":6},{"w":"most","pos":"副詞・形容詞","m":"最も、いちばん","ex":"Mt. Fuji is the most beautiful mountain in Japan.","ja":"富士山は日本でいちばん美しい山です。","t":"w","b":6},{"w":"in front of","pos":"前置詞","m":"〜の前に（位置）","ex":"Read the book in front of the class.","ja":"クラスの前で本を読みなさい。","t":"w","b":6},{"w":"behind","pos":"前置詞・副詞","m":"〜の後ろに","ex":"The cat is behind the door.","ja":"猫はドアの後ろにいます。","t":"w","b":6},{"w":"under","pos":"前置詞","m":"〜の下に","ex":"The ball is under the desk.","ja":"ボールは机の下にあります。","t":"w","b":6},{"w":"over","pos":"前置詞・副詞","m":"〜の上に、〜を超えて","ex":"Birds fly over the river.","ja":"鳥が川の上を飛びます。","t":"w","b":6},{"w":"between","pos":"前置詞","m":"〜の間に","ex":"Sit between Tom and Mary.","ja":"トムとメアリーの間に座りなさい。","t":"w","b":6},{"w":"near","pos":"前置詞・副詞","m":"〜の近くに","ex":"The shop is near the station.","ja":"その店は駅の近くです。","t":"w","b":6},{"w":"far","pos":"副詞・形容詞","m":"遠くに、遠い","ex":"Niigata is far from Tokyo.","ja":"新潟は東京から遠いです。","t":"w","b":6},{"w":"with","pos":"前置詞","m":"〜といっしょに、〜を持って","ex":"Come with me.","ja":"わたしといっしょに来なさい。","t":"w","b":6},{"w":"without","pos":"前置詞","m":"〜なしで","ex":"Don't play without a ball.","ja":"ボールなしで遊んではいけません。","t":"w","b":6},{"w":"for","pos":"前置詞・接続詞","m":"〜のために、〜の間","ex":"I study English for two hours.","ja":"わたしは2時間英語を勉強します。","t":"w","b":6},{"w":"from","pos":"前置詞","m":"〜から","ex":"This present is from my uncle.","ja":"このプレゼントは叔父からのものです。","t":"w","b":6},{"w":"to","pos":"前置詞","m":"〜へ、〜に","ex":"Give this letter to him.","ja":"この手紙を彼に渡しなさい。","t":"w","b":6},{"w":"in","pos":"前置詞","m":"〜の中に、〜で","ex":"He is in the room now.","ja":"彼は今部屋にいます。","t":"w","b":6},{"w":"on","pos":"前置詞","m":"〜の上に","ex":"The book is on the table.","ja":"本はテーブルの上にあります。","t":"w","b":6},{"w":"at","pos":"前置詞","m":"〜に（時刻・場所）","ex":"School starts at nine.","ja":"学校は9時に始まります。","t":"w","b":6},{"w":"by","pos":"前置詞","m":"〜によって、〜で、〜までに","ex":"He came to school by bus.","ja":"彼はバスで学校に来ました。","t":"w","b":6},{"w":"about","pos":"前置詞・副詞","m":"〜について、〜のまわりを","ex":"Read about animals in this book.","ja":"この本で動物について読みなさい。","t":"w","b":6},{"w":"after","pos":"前置詞・接続詞","m":"〜のあとで","ex":"After lunch, we play outside.","ja":"昼食のあと、外で遊びます。","t":"w","b":6},{"w":"before","pos":"前置詞・接続詞","m":"〜の前に（時間）","ex":"Wash your hands before lunch.","ja":"昼食の前に手を洗いなさい。","t":"w","b":6},{"w":"until","pos":"前置詞・接続詞","m":"〜まで（時間）","ex":"I waited until noon.","ja":"正午まで待ちました。","t":"w","b":6},{"w":"and","pos":"接続詞","m":"〜と、そして","ex":"I like apples and oranges.","ja":"わたしはりんごとオレンジが好きです。","t":"w","b":6},{"w":"but","pos":"接続詞","m":"しかし、けれども","ex":"I like tea, but he likes coffee.","ja":"わたしはお茶が好きですが、彼はコーヒーが好きです。","t":"w","b":6},{"w":"or","pos":"接続詞","m":"または、か","ex":"Tea or coffee, which do you like?","ja":"お茶とコーヒー、どちらが好きですか。","t":"w","b":6},{"w":"because","pos":"接続詞","m":"なぜなら〜だから","ex":"I stayed home because I was sick.","ja":"病気だったので家にいました。","t":"w","b":6},{"w":"so","pos":"接続詞・副詞","m":"だから、それで、とても","ex":"I was tired, so I went to bed early.","ja":"疲れたので、早く寝ました。","t":"w","b":6},{"w":"if","pos":"接続詞","m":"もし〜なら","ex":"If it is fine tomorrow, let's go out.","ja":"明日晴れたら、出かけましょう。","t":"w","b":6},{"w":"while","pos":"接続詞","m":"〜している間に","ex":"While I was cooking, he called me.","ja":"料理をしている間に、彼から電話がありました。","t":"w","b":6},{"w":"please","pos":"副詞","m":"どうぞ、〜してください","ex":"Please help me.","ja":"助けてください。","t":"w","b":6},{"w":"thank","pos":"動詞","m":"〜に感謝する","ex":"Thank you for your help.","ja":"助けてくれてありがとう。","t":"w","b":6},{"w":"yes","pos":"副詞","m":"はい","ex":"Yes, I can do it.","ja":"はい、できます。","t":"w","b":6},{"w":"no","pos":"副詞","m":"いいえ","ex":"No, I don't like it.","ja":"いいえ、好きではありません。","t":"w","b":6},{"w":"not","pos":"副詞","m":"〜ない","ex":"I am not a teacher.","ja":"わたしは先生ではありません。","t":"w","b":6},{"w":"already","pos":"副詞","m":"すでに、もう","ex":"I have already finished my homework.","ja":"わたしはもう宿題を終えました。","t":"w","b":6},{"w":"loudly","pos":"副詞","m":"大きな声で","ex":"Don't speak loudly in the library.","ja":"図書館では大きな声で話さないでください。","t":"w","b":6},{"w":"well","pos":"副詞・形容詞","m":"よく、上手に","ex":"Well done! You did it.","ja":"よくやった！できましたね。","t":"w","b":6},{"w":"alone","pos":"副詞・形容詞","m":"一人で、ただ〜だけ","ex":"She lives alone in a small house.","ja":"彼女は小さな家に一人で暮らしています。","t":"w","b":6},{"w":"again","pos":"副詞","m":"再び、もう一度","ex":"Please say it again.","ja":"もう一度言ってください。","t":"w","b":6},{"w":"quiet","pos":"形容詞","m":"静かな","ex":"Be quiet, please.","ja":"静かにしてください。","t":"w","b":6},{"w":"asleep","pos":"形容詞","m":"眠って","ex":"The baby is asleep now.","ja":"赤ちゃんは今眠っています。","t":"w","b":6},{"w":"silence","pos":"名詞","m":"静けさ、沈黙","ex":"There was silence in the room.","ja":"部屋は静まり返っていました。","t":"w","b":6},{"w":"loud","pos":"形容詞","m":"（音が）大きい、うるさい","ex":"The music is too loud.","ja":"音楽がうるさすぎます。","t":"w","b":6},{"w":"sound","pos":"名詞・動詞","m":"音、音がする","ex":"I heard a strange sound.","ja":"変な音を聞きました。","t":"w","b":6},{"w":"voice","pos":"名詞","m":"声","ex":"She has a beautiful voice.","ja":"彼女は美しい声をしています。","t":"w","b":6},{"w":"noise","pos":"名詞","m":"物音、騒音","ex":"Don't make a noise in class.","ja":"授業中は音を立てないでください。","t":"w","b":6},{"w":"through","pos":"前置詞","m":"〜を通って、〜を通じて","ex":"We walked through the park.","ja":"わたしたちは公園を通って歩きました。","t":"w","b":6},{"w":"of course","pos":"副詞","m":"もちろん","ex":"Of course, I will help you.","ja":"もちろん、手伝います。","t":"w","b":6},{"w":"maybe","pos":"副詞","m":"たぶん、おそらく","ex":"Maybe it will rain tomorrow.","ja":"明日はたぶん雨でしょう。","t":"w","b":6},{"w":"probably","pos":"副詞","m":"おそらく、たぶん","ex":"It will probably snow tonight.","ja":"今夜はおそらく雪でしょう。","t":"w","b":6},{"w":"really","pos":"副詞","m":"本当に","ex":"Really? I can't believe it.","ja":"本当に？信じられません。","t":"w","b":6},{"w":"actually","pos":"副詞","m":"実は、実際に","ex":"Actually, I am a teacher.","ja":"実は、わたしは先生です。","t":"w","b":6},{"w":"finally","pos":"副詞","m":"ついに、最後に","ex":"Finally, we finished the work.","ja":"ついに、仕事が終わりました。","t":"w","b":6},{"w":"suddenly","pos":"副詞","m":"突然に","ex":"Suddenly, it began to rain.","ja":"突然、雨が降り始めました。","t":"w","b":6},{"w":"luckily","pos":"副詞","m":"幸いなことに","ex":"Luckily, no one was hurt.","ja":"幸いなことに、けが人はいませんでした。","t":"w","b":6},{"w":"abroad","pos":"副詞","m":"海外へ、海外に","ex":"I go abroad every year.","ja":"わたしは毎年海外へ行きます。","t":"w","b":6},{"w":"out","pos":"副詞","m":"外へ、外出して","ex":"Let's go out for lunch.","ja":"昼食に出かけましょう。","t":"w","b":6},{"w":"up","pos":"副詞・前置詞","m":"上に、上へ","ex":"Stand up and go out.","ja":"立って外へ出なさい。","t":"w","b":6},{"w":"down","pos":"副詞・前置詞","m":"下に、下へ","ex":"Sit down, please.","ja":"座ってください。","t":"w","b":6},{"w":"away","pos":"副詞","m":"離れて、去って","ex":"The bird flew away.","ja":"鳥は飛び去りました。","t":"w","b":6},{"w":"back","pos":"副詞","m":"後ろへ、戻って","ex":"Come back soon.","ja":"すぐに戻ってきてください。","t":"w","b":6},{"w":"toward","pos":"前置詞","m":"〜の方へ、〜に向かって","ex":"She ran toward the station.","ja":"彼女は駅の方へ走りました。","t":"w","b":6},{"w":"straight","pos":"副詞・形容詞","m":"まっすぐに","ex":"Go straight along this street.","ja":"この通りをまっすぐ行きなさい。","t":"w","b":6},{"w":"ahead","pos":"副詞","m":"前に、前方へ","ex":"Go straight ahead.","ja":"まっすぐ前に進みなさい。","t":"w","b":6},{"w":"left","pos":"副詞・名詞","m":"左へ、左","ex":"Turn left at the next corner.","ja":"次の角を左に曲がりなさい。","t":"w","b":6},{"w":"east","pos":"名詞・副詞","m":"東、東へ","ex":"Japan is east of China.","ja":"日本は中国の東です。","t":"w","b":6},{"w":"south","pos":"名詞・副詞","m":"南、南へ","ex":"Birds fly south in fall.","ja":"鳥は秋に南へ飛びます。","t":"w","b":6},{"w":"north","pos":"名詞・副詞","m":"北、北へ","ex":"Hokkaido is in the north of Japan.","ja":"北海道は日本の北にあります。","t":"w","b":6},{"w":"west","pos":"名詞・副詞","m":"西、西へ","ex":"The sun sets in the west.","ja":"太陽は西に沈みます。","t":"w","b":6},{"w":"than","pos":"前置詞・接続詞","m":"〜より、〜よりも","ex":"This pen is bigger than that one.","ja":"このペンはあのペンより大きいです。","t":"w","b":6},{"w":"inside","pos":"副詞・前置詞","m":"中に、内側","ex":"The cat is inside the box.","ja":"猫は箱の中にいます。","t":"w","b":6},{"w":"outside","pos":"副詞・前置詞","m":"外に、外側","ex":"Children are playing outside.","ja":"子どもたちは外で遊んでいます。","t":"w","b":6},{"w":"look at","pos":"熟語","m":"〜を見る","ex":"Look at that beautiful mountain.","ja":"あの美しい山を見なさい。","t":"i","b":7},{"w":"listen to","pos":"熟語","m":"〜を聞く、耳を傾ける","ex":"Listen to me carefully.","ja":"わたしの話を注意して聞きなさい。","t":"i","b":7},{"w":"wait for","pos":"熟語","m":"〜を待つ","ex":"Wait for me at the station.","ja":"駅でわたしを待っていてください。","t":"i","b":7},{"w":"arrive in","pos":"熟語","m":"〜に着く（大きな場所）","ex":"He arrived in Niigata yesterday.","ja":"彼は昨日新潟に着きました。","t":"i","b":7},{"w":"arrive at","pos":"熟語","m":"〜に着く（小さな場所）","ex":"We arrived at the park at ten.","ja":"わたしたちは10時に公園に着きました。","t":"i","b":7},{"w":"talk about","pos":"熟語","m":"〜について話す","ex":"We talked about our trip.","ja":"わたしたちは旅行について話しました。","t":"i","b":7},{"w":"talk with","pos":"熟語","m":"〜と話す","ex":"She is talking with her teacher.","ja":"彼女は先生と話しています。","t":"i","b":7},{"w":"think about","pos":"熟語","m":"〜について考える","ex":"Think about your future.","ja":"自分の将来について考えなさい。","t":"i","b":7},{"w":"look for","pos":"熟語","m":"〜を探す","ex":"I am looking for my keys.","ja":"わたしは鍵を探しています。","t":"i","b":7},{"w":"look after","pos":"熟語","m":"〜の世話をする","ex":"Look after your little brother.","ja":"弟の世話をしなさい。","t":"i","b":7},{"w":"look forward to","pos":"熟語","m":"〜を楽しみに待つ","ex":"I look forward to seeing you.","ja":"あなたに会うのを楽しみにしています。","t":"i","b":7},{"w":"get up","pos":"熟語","m":"起きる","ex":"I get up at six every morning.","ja":"わたしは毎朝6時に起きます。","t":"i","b":7},{"w":"get on","pos":"熟語","m":"（乗り物に）乗る","ex":"Get on the bus here.","ja":"ここでバスに乗りなさい。","t":"i","b":7},{"w":"get off","pos":"熟語","m":"（乗り物から）降りる","ex":"Get off at the next station.","ja":"次の駅で降りなさい。","t":"i","b":7},{"w":"get to","pos":"熟語","m":"〜に着く、到着する","ex":"He got to school late today.","ja":"彼は今日学校に遅れて着きました。","t":"i","b":7},{"w":"take off","pos":"熟語","m":"脱ぐ、離陸する","ex":"Take off your shoes here.","ja":"ここで靴を脱ぎなさい。","t":"i","b":7},{"w":"take care of","pos":"熟語","m":"気をつける、世話をする","ex":"Take care of yourself.","ja":"体に気をつけてください。","t":"i","b":7},{"w":"take a picture","pos":"熟語","m":"写真を撮る","ex":"This photo was taken in Kyoto.","ja":"この写真は京都で撮られました。","t":"i","b":7},{"w":"take a walk","pos":"熟語","m":"散歩する","ex":"Let's take a walk in the park.","ja":"公園を散歩しましょう。","t":"i","b":7},{"w":"take a seat","pos":"熟語","m":"席に着く、座る","ex":"Please take a seat.","ja":"どうぞ座ってください。","t":"i","b":7},{"w":"take part in","pos":"熟語","m":"〜に参加する","ex":"Many students took part in the contest.","ja":"多くの生徒がコンテストに参加しました。","t":"i","b":7},{"w":"take place","pos":"熟語","m":"（行事が）開かれる、行われる","ex":"The festival takes place in August.","ja":"その祭りは8月に開かれます。","t":"i","b":7},{"w":"come on","pos":"熟語","m":"さあ、がんばれ","ex":"Come on! We can do it.","ja":"さあ！わたしたちならできます。","t":"i","b":7},{"w":"come in","pos":"熟語","m":"中に入る","ex":"Come in, please.","ja":"どうぞ入ってください。","t":"i","b":7},{"w":"come up","pos":"熟語","m":"（太陽が）昇る、出てくる","ex":"The sun comes up in the east.","ja":"太陽は東から昇ります。","t":"i","b":7},{"w":"go on","pos":"熟語","m":"続ける、続く","ex":"Go on, please. I am listening.","ja":"続けてください。聞いています。","t":"i","b":7},{"w":"go out","pos":"熟語","m":"外出する","ex":"He went out for lunch.","ja":"彼は昼食に出かけました。","t":"i","b":7},{"w":"stand up","pos":"熟語","m":"立ち上がる","ex":"Stand up and say your name.","ja":"立って名前を言いなさい。","t":"i","b":7},{"w":"sit down","pos":"熟語","m":"座る、腰かける","ex":"Sit down over there.","ja":"向こうに座りなさい。","t":"i","b":7},{"w":"wake up","pos":"熟語","m":"（人を）起こす、目を覚ます","ex":"Wake me up at six, please.","ja":"6時に起こしてください。","t":"i","b":7},{"w":"hurry up","pos":"熟語","m":"急ぐ","ex":"Hurry up! The bus is coming.","ja":"急いで！バスが来ます。","t":"i","b":7},{"w":"give up","pos":"熟語","m":"あきらめる","ex":"Never give up.","ja":"決してあきらめないでください。","t":"i","b":7},{"w":"put on","pos":"熟語","m":"（服を）着る、身につける","ex":"Put on your coat. It is cold.","ja":"コートを着なさい。寒いですよ。","t":"i","b":7},{"w":"turn off","pos":"熟語","m":"（電気などを）消す","ex":"Turn off the light, please.","ja":"明かりを消してください。","t":"i","b":7},{"w":"turn on","pos":"熟語","m":"（電気などを）つける","ex":"Turn on the TV.","ja":"テレビをつけなさい。","t":"i","b":7},{"w":"pick up","pos":"熟語","m":"拾い上げる","ex":"Pick up the pen on the floor.","ja":"床のペンを拾いなさい。","t":"i","b":7},{"w":"write down","pos":"熟語","m":"書き留める","ex":"Write down the new words.","ja":"新しい単語を書き留めなさい。","t":"i","b":7},{"w":"find out","pos":"熟語","m":"見つけ出す、分かる","ex":"Find out the answer by yourself.","ja":"自分で答えを見つけなさい。","t":"i","b":7},{"w":"work out","pos":"熟語","m":"（問題を）解く、運動する","ex":"Work out the problem in ten minutes.","ja":"10分でその問題を解きなさい。","t":"i","b":7},{"w":"run out of","pos":"熟語","m":"〜を使い果たす、なくなる","ex":"We ran out of water.","ja":"水がなくなりました。","t":"i","b":7},{"w":"be interested in","pos":"熟語","m":"〜に興味がある","ex":"She is interested in music.","ja":"彼女は音楽に興味があります。","t":"i","b":7},{"w":"be good at","pos":"熟語","m":"〜が得意である","ex":"I am good at math.","ja":"わたしは数学が得意です。","t":"i","b":7},{"w":"be weak in","pos":"熟語","m":"〜が苦手である","ex":"He is weak in English.","ja":"彼は英語が苦手です。","t":"i","b":7},{"w":"be famous for","pos":"熟語","m":"〜で有名である","ex":"Niigata is famous for its rice.","ja":"新潟はお米で有名です。","t":"i","b":7},{"w":"be proud of","pos":"熟語","m":"〜を誇りに思う","ex":"I am proud of my school.","ja":"わたしは自分の学校を誇りに思います。","t":"i","b":7},{"w":"be afraid of","pos":"熟語","m":"〜を恐れる、怖がる","ex":"She is afraid of dogs.","ja":"彼女は犬が怖いです。","t":"i","b":7},{"w":"be full of","pos":"熟語","m":"〜でいっぱいである","ex":"This box is full of books.","ja":"この箱は本でいっぱいです。","t":"i","b":7},{"w":"be careful of","pos":"熟語","m":"〜に気をつける","ex":"Take care. Be careful of cars.","ja":"気をつけて。車に注意しなさい。","t":"i","b":7},{"w":"be kind to","pos":"熟語","m":"〜に親切である","ex":"He is kind to everyone.","ja":"彼はだれにでも親切です。","t":"i","b":7},{"w":"be sure of","pos":"熟語","m":"〜を確信している","ex":"I am sure of his success.","ja":"彼の成功を確信しています。","t":"i","b":7},{"w":"be surprised at","pos":"熟語","m":"〜に驚く","ex":"I was surprised at the news.","ja":"わたしはその知らせに驚きました。","t":"i","b":7},{"w":"be known for","pos":"熟語","m":"〜で知られている","ex":"This town is known for its snow.","ja":"この町は雪で知られています。","t":"i","b":7},{"w":"be filled with","pos":"熟語","m":"〜で満たされる、いっぱいになる","ex":"The room was filled with music.","ja":"部屋は音楽で満たされていました。","t":"i","b":7},{"w":"be satisfied with","pos":"熟語","m":"〜に満足している","ex":"I am satisfied with the result.","ja":"わたしは結果に満足しています。","t":"i","b":7},{"w":"be different from","pos":"熟語","m":"〜と異なる、違う","ex":"She is different from her sister.","ja":"彼女は姉と違います。","t":"i","b":7},{"w":"be similar to","pos":"熟語","m":"〜に似ている","ex":"He is similar to his father.","ja":"彼は父親に似ています。","t":"i","b":7},{"w":"be looking forward to","pos":"熟語","m":"〜を楽しみにしている","ex":"I am looking forward to the trip.","ja":"わたしは旅行を楽しみにしています。","t":"i","b":7},{"w":"must do","pos":"熟語","m":"〜しなければならない","ex":"You must be quiet in the library.","ja":"図書館では静かにしなければなりません。","t":"i","b":7},{"w":"must not do","pos":"熟語","m":"〜してはいけない","ex":"You must not run in the hall.","ja":"廊下を走ってはいけません。","t":"i","b":7},{"w":"have to do","pos":"熟語","m":"〜しなければならない","ex":"I have to go home now.","ja":"わたしはもう家に帰らなければなりません。","t":"i","b":7},{"w":"don't have to do","pos":"熟語","m":"〜する必要はない","ex":"You don't have to hurry.","ja":"急ぐ必要はありません。","t":"i","b":7},{"w":"cannot do","pos":"熟語","m":"〜できない","ex":"I cannot speak French.","ja":"わたしはフランス語が話せません。","t":"i","b":7},{"w":"may do","pos":"熟語","m":"〜してもよい","ex":"May I open the window?","ja":"窓を開けてもいいですか。","t":"i","b":7},{"w":"would like","pos":"熟語","m":"〜がほしい、〜したい（丁寧）","ex":"I would like some tea.","ja":"お茶をいただきたいです。","t":"i","b":7},{"w":"would like to do","pos":"熟語","m":"〜しませんか（誘い）","ex":"Would you like to join us?","ja":"わたしたちに加わりませんか。","t":"i","b":7},{"w":"used to do","pos":"熟語","m":"以前は〜だった、よく〜したものだ","ex":"I used to play here as a child.","ja":"子どものころ、ここでよく遊んだものです。","t":"i","b":7},{"w":"be going to do","pos":"熟語","m":"〜するつもり、〜だろう","ex":"We are going to visit Kyoto.","ja":"わたしたちは京都を訪れるつもりです。","t":"i","b":7},{"w":"want to do","pos":"熟語","m":"〜したい","ex":"He wants to be a doctor.","ja":"彼は医者になりたいです。","t":"i","b":7},{"w":"hope to do","pos":"熟語","m":"〜することを望む","ex":"I hope to see you again.","ja":"また会えることを願っています。","t":"i","b":7},{"w":"decide to do","pos":"熟語","m":"〜することに決める","ex":"She decided to study abroad.","ja":"彼女は留学することに決めました。","t":"i","b":7},{"w":"plan to do","pos":"熟語","m":"〜する計画である","ex":"We plan to climb the mountain.","ja":"わたしたちはその山に登る計画です。","t":"i","b":7},{"w":"enjoy doing","pos":"熟語","m":"〜することを楽しむ","ex":"I enjoy reading books.","ja":"わたしは本を読むことを楽しみます。","t":"i","b":7},{"w":"finish doing","pos":"熟語","m":"〜することを終える","ex":"Finish doing your homework.","ja":"宿題をするのを終えなさい。","t":"i","b":7},{"w":"stop doing","pos":"熟語","m":"〜することをやめる","ex":"Don't stop believing.","ja":"信じることをやめないでください。","t":"i","b":7},{"w":"remember doing","pos":"熟語","m":"〜したことを覚えている","ex":"I remember seeing him before.","ja":"前に彼に会ったことを覚えています。","t":"i","b":7},{"w":"remember to do","pos":"熟語","m":"〜することを覚えておく","ex":"Remember to bring your book.","ja":"本を持ってくるのを忘れないでください。","t":"i","b":7},{"w":"forget to do","pos":"熟語","m":"〜するのを忘れる","ex":"He forgot to lock the door.","ja":"彼はドアに鍵をかけるのを忘れました。","t":"i","b":7},{"w":"try to do","pos":"熟語","m":"〜しようと努める","ex":"Try to be kind to animals.","ja":"動物に親切にするようにしなさい。","t":"i","b":7},{"w":"try doing","pos":"熟語","m":"〜してみる","ex":"Try opening the window.","ja":"窓を開けてみなさい。","t":"i","b":7},{"w":"it is fun to do","pos":"熟語","m":"〜することは楽しい","ex":"It is fun to play soccer.","ja":"サッカーをするのは楽しいです。","t":"i","b":7},{"w":"it is important to do","pos":"熟語","m":"〜することが大切だ","ex":"It is important to study every day.","ja":"毎日勉強することが大切です。","t":"i","b":7},{"w":"it is difficult for A to do","pos":"熟語","m":"〜にとって〜することは難しい","ex":"It is difficult for me to swim fast.","ja":"速く泳ぐのはわたしには難しいです。","t":"i","b":7},{"w":"easy to do","pos":"熟語","m":"〜しやすい","ex":"This book is easy to read.","ja":"この本は読みやすいです。","t":"i","b":7},{"w":"things to do","pos":"熟語","m":"〜すべきこと","ex":"I have many things to do today.","ja":"今日はすることがたくさんあります。","t":"i","b":7},{"w":"something to drink","pos":"熟語","m":"飲むもの","ex":"I want something to drink.","ja":"何か飲むものがほしいです。","t":"i","b":7},{"w":"how to do","pos":"熟語","m":"〜の仕方、方法","ex":"Tell me how to get there.","ja":"そこへの行き方を教えてください。","t":"i","b":7},{"w":"what to do","pos":"熟語","m":"何を〜すべきか","ex":"I don't know what to do.","ja":"何をしたらよいか分かりません。","t":"i","b":7},{"w":"when to do","pos":"熟語","m":"いつ〜すべきか","ex":"She told me when to start.","ja":"彼女はいつ始めるべきか教えてくれました。","t":"i","b":7},{"w":"where to do","pos":"熟語","m":"どこで〜すべきか","ex":"Show me where to sit.","ja":"どこに座ればよいか教えてください。","t":"i","b":7},{"w":"too ... to do","pos":"熟語","m":"〜するには〜すぎる","ex":"He is too young to travel alone.","ja":"彼は一人で旅行するには若すぎます。","t":"i","b":7},{"w":"too heavy to carry","pos":"熟語","m":"〜が…するには重すぎる","ex":"The box is too heavy for me to carry.","ja":"その箱はわたしが運ぶには重すぎます。","t":"i","b":7},{"w":"enough to do","pos":"熟語","m":"〜するほど十分に…だ","ex":"She is kind enough to help us.","ja":"彼女はわたしたちを助けてくれるほど親切です。","t":"i","b":7},{"w":"so that","pos":"熟語","m":"〜できるように","ex":"I study hard so that I can pass the test.","ja":"テストに受かるよう一生懸命勉強します。","t":"i","b":7},{"w":"in order to do","pos":"熟語","m":"〜するために","ex":"He left early in order to catch the train.","ja":"彼は電車に間に合うため早く出ました。","t":"i","b":7},{"w":"as soon as","pos":"熟語","m":"〜するとすぐに","ex":"As soon as I got home, it rained.","ja":"家に着くとすぐに雨が降りました。","t":"i","b":7},{"w":"as long as","pos":"熟語","m":"〜する限り","ex":"As long as you try, you can do it.","ja":"挑戦する限り、できます。","t":"i","b":7},{"w":"as ... as","pos":"熟語","m":"〜と同じくらい…だ","ex":"This bag is as heavy as that one.","ja":"このカバンはあのカバンと同じくらい重いです。","t":"i","b":7},{"w":"as fast as","pos":"熟語","m":"〜と同じくらい速く","ex":"He runs as fast as his brother.","ja":"彼は兄と同じくらい速く走ります。","t":"i","b":7},{"w":"the most ...","pos":"熟語","m":"いちばん〜だ（最上級）","ex":"This is the most interesting book.","ja":"これはいちばんおもしろい本です。","t":"i","b":7},{"w":"one of","pos":"熟語","m":"〜のうちの一つ、一人","ex":"One of my friends lives in Tokyo.","ja":"わたしの友だちの一人は東京に住んでいます。","t":"i","b":7}];
+const BOOKS = [
+  {n:1,t:"ことばの芽",s:"人と基本の動詞"},
+  {n:2,t:"まいにちの本",s:"学校と毎日のこと"},
+  {n:3,t:"からだと自然",s:"食べ物・体・気持ち"},
+  {n:4,t:"動かす言葉",s:"動作の動詞を広げる"},
+  {n:5,t:"広がる世界",s:"社会・文化・スポーツ"},
+  {n:6,t:"つなぐ言葉",s:"形容詞・前置詞・接続詞"},
+  {n:7,t:"英熟語の本",s:"中学の英熟語100"}
+];
+const INTERVALS = [1,3,7,14,30,60]; // level 0->1 uses 1 day, ..., level 5->6 uses 60 days; passing at level 6 graduates
+const LS_KEY = "ep-state-v1";
+/* ---------- state ---------- */
+function todayStr(d){ d=d||new Date(); return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0"); }
+function addDays(str,n){ const d=new Date(str+"T00:00:00"); d.setDate(d.getDate()+n); return todayStr(d); }
+function freshState(){ return {cards:{}, gradedDate:"", gradedIds:[], newToday:0, history:{}, settings:{daily:10, sound:true}}; }
+let S;
+try{ S = JSON.parse(localStorage.getItem(LS_KEY)) || freshState(); }catch(e){ S = freshState(); }
+if(!S.cards) S = freshState();
+function save(){ try{ localStorage.setItem(LS_KEY, JSON.stringify(S)); }catch(e){} }
+function cardOf(i){ return S.cards[i] || null; }
+function isGraduated(i){ const c=cardOf(i); return !!(c && c.grad); }
+function isSeen(i){ return !!cardOf(i); }
+function rollDay(){ const t=todayStr(); if(S.gradedDate!==t){ S.gradedDate=t; S.gradedIds=[]; S.newToday=0; } }
+/* ---------- audio ---------- */
+let AC=null;
+function beep(freq, t0, dur, type, vol){
+  if(!S.settings.sound) return;
+  try{
+    AC = AC || new (window.AudioContext||window.webkitAudioContext)();
+    const o=AC.createOscillator(), g=AC.createGain();
+    o.type=type||"sine"; o.frequency.value=freq;
+    g.gain.setValueAtTime(vol||0.16, AC.currentTime+t0);
+    g.gain.exponentialRampToValueAtTime(0.001, AC.currentTime+t0+dur);
+    o.connect(g); g.connect(AC.destination); o.start(AC.currentTime+t0); o.stop(AC.currentTime+t0+dur);
+  }catch(e){}
+}
+const sndTap=()=>beep(660,0,.07,"triangle",.08);
+const sndGood=()=>{ beep(660,0,.1,"sine",.14); beep(880,.09,.16,"sine",.14); };
+const sndBad=()=>beep(196,0,.2,"sawtooth",.07);
+const sndFanfare=()=>{ [523,659,784,1047].forEach((f,i)=>beep(f,i*.11,.22,"triangle",.15)); beep(1319,.48,.4,"triangle",.15); };
+function speak(text){
+  try{
+    const u=new SpeechSynthesisUtterance(text); u.lang="en-US"; u.rate=0.88;
+    speechSynthesis.cancel(); speechSynthesis.speak(u);
+  }catch(e){}
+}
+/* ---------- helpers ---------- */
+const $=id=>document.getElementById(id);
+function esc(s){ return String(s).replace(/[&<>"']/g, c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c])); }
+function shuffle(a){ a=a.slice(); for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; } return a; }
+function show(view){
+  document.querySelectorAll(".view").forEach(v=>v.classList.remove("on"));
+  $("view-"+view).classList.add("on");
+  window.scrollTo(0,0);
+  if(view==="home") renderHome();
+  if(view==="book") renderBook();
+  if(view==="weak") renderWeak();
+  if(view==="set") renderSet();
+}
+function confetti(){
+  const box=$("confetti"); box.innerHTML="";
+  const colors=["#b5452f","#e0a100","#3d8b4f","#2f6fb5","#7a4fa3","#00838f"];
+  for(let i=0;i<70;i++){
+    const el=document.createElement("i");
+    el.style.left=Math.random()*100+"%";
+    el.style.background=colors[i%colors.length];
+    el.style.animationDuration=(1.4+Math.random()*1.4)+"s";
+    el.style.animationDelay=(Math.random()*0.35)+"s";
+    box.appendChild(el);
+  }
+  setTimeout(()=>box.innerHTML="",3600);
+}
+/* ---------- SRS queue ---------- */
+function dueReviews(){
+  const t=todayStr();
+  return DATA.map((e,i)=>i).filter(i=>{
+    const c=cardOf(i);
+    return c && !c.grad && c.due<=t && !S.gradedIds.includes(i);
+  });
+}
+function newCards(limit){
+  const out=[];
+  for(let i=0;i<DATA.length && out.length<limit;i++){ if(!cardOf(i)) out.push(i); }
+  return out;
+}
+function todayQueue(){
+  rollDay();
+  const remain = Math.max(0, S.settings.daily - S.newToday);
+  return dueReviews().concat(newCards(remain));
+}
+function todayTotalPlanned(){
+  rollDay();
+  const done = S.gradedIds.length;
+  const left = todayQueue().length;
+  return {done, left, total: done+left};
+}
+function grade(i, g){ // g: 0 forgot, 1 unsure, 2 known
+  rollDay();
+  const t=todayStr();
+  let c=cardOf(i);
+  const firstEver=!c;
+  if(!c){ c={lv:0, due:t, lap:0, grad:false}; S.cards[i]=c; }
+  if(g===0){ c.lv=0; c.due=t; c.lap=(c.lap||0)+1; }
+  else if(g===1){ c.due=addDays(t, Math.max(1, Math.round((INTERVALS[Math.min(c.lv,5)]||1)/2))); }
+  else{
+    if(c.lv>=6){ c.grad=true; c.due="9999-12-31"; }
+    else{ c.due=addDays(t, INTERVALS[Math.min(c.lv,5)]); c.lv+=1; if(c.lv>=6 && c.due===addDays(t,60)){ /* last step */ } }
+  }
+  if(!S.gradedIds.includes(i)) S.gradedIds.push(i);
+  if(firstEver) S.newToday+=1;
+  const h=S.history[t]||(S.history[t]={n:0,r:0});
+  if(firstEver) h.n+=1; else h.r+=1;
+  save();
+  return c;
+}
+function streak(){
+  let n=0; let d=todayStr();
+  if(!S.history[d]) d=addDays(d,-1);
+  while(S.history[d]){ n++; d=addDays(d,-1); }
+  return n;
+}
+/* ---------- home ---------- */
+function renderHome(){
+  rollDay();
+  const q=todayTotalPlanned();
+  $("today-remain").textContent = q.left;
+  document.querySelector(".today-label").textContent = q.left===0 ? "今日の分は終わりです。おつかれさま！" : "あと "+q.left+" 語で今日の分は終わり";
+  $("today-bar").style.width = q.total? Math.round(q.done/q.total*100)+"%" : "100%";
+  const dueN=dueReviews().length, newN=Math.min(newCards(999).length, Math.max(0,S.settings.daily-S.newToday));
+  $("today-detail").textContent = q.left===0 ? "復習も新しい語も、今日の分は全部終わりました。" :
+    ("内訳：復習 "+dueN+" 語 ＋ 新しい語 "+newN+" 語（今日の学習済み "+q.done+" 語）");
+  $("btn-start").textContent = q.left===0 ? "✔ 今日の分は終わりです" : "▶ 今日の分をはじめる（"+q.left+"語）";
+  $("btn-start").disabled = q.left===0;
+  $("btn-more").style.display = q.left===0 ? "block" : "none";
+  $("streak-num").textContent = streak();
+  $("learned-num").textContent = DATA.filter((e,i)=>isSeen(i)).length;
+  $("grad-num").textContent = DATA.filter((e,i)=>isGraduated(i)).length;
+  const weakN = DATA.filter((e,i)=>{ const c=cardOf(i); return c && (c.lap||0)>=2 && !c.grad; }).length;
+  $("weak-count").textContent = weakN? ("いま "+weakN+" 語たまっています") : "忘れやすい語を集中復習";
+  // shelf
+  $("shelf").innerHTML = BOOKS.map(b=>{
+    const idxs=DATA.map((e,i)=>i).filter(i=>DATA[i].b===b.n);
+    const seen=idxs.filter(i=>isSeen(i)).length;
+    const lvSum=idxs.reduce((a,i)=>{ const c=cardOf(i); return a+(c?(c.grad?6:c.lv):0); },0);
+    const pct=Math.round(lvSum/(idxs.length*6)*100);
+    const complete=idxs.every(i=>{ const c=cardOf(i); return c && (c.grad || c.lv>=4); });
+    return '<div class="book bk'+b.n+'">'+(complete?'<span class="stamp">修了！</span>':'')+
+      '<div class="bt">'+esc(b.t)+'</div><div class="bn">'+esc(b.s)+'</div>'+
+      '<div class="bn">学習済み '+seen+' / '+idxs.length+' 語</div>'+
+      '<div class="bp"><div class="bar"><i style="width:'+pct+'%"></i></div><div class="bpct">育ち具合 '+pct+'%</div></div></div>';
+  }).join("");
+}
+/* ---------- study session ---------- */
+let session=null;
+function startSession(queue, title, isFree){
+  if(!queue.length) return;
+  session={q:shuffle(queue), pos:0, title:title, total:queue.length, doneIds:new Set(), isFree:!!isFree, results:{g:0,u:0,f:0}};
+  show("study");
+  $("study-title").textContent=title;
+  renderCard();
+}
+function renderCard(){
+  const sc=$("study-card"), sa=$("study-actions");
+  if(!session || session.pos>=session.q.length){ finishSession(); return; }
+  const i=session.q[session.pos], e=DATA[i];
+  $("study-bar").style.width=Math.round(session.pos/session.q.length*100)+"%";
+  $("study-count").textContent=(session.pos+1)+" / "+session.q.length+" 語";
+  sc.innerHTML=
+    '<div class="tag">'+esc(BOOKS[e.b-1].t)+' ・ '+(e.t==="i"?"英熟語":"単語")+' ・ '+esc(e.pos)+'</div>'+
+    '<div class="word'+(e.w.length>14?" small":"")+'">'+esc(e.w)+'</div>'+
+    '<button class="spk" id="spk-w">🔊 発音を聞く</button>'+
+    '<p class="note" style="margin-top:16px">意味を思い浮かべてから、裏を見ましょう。</p>';
+  sa.innerHTML='<button class="btn gold" id="btn-flip">意味を見る</button>';
+  $("spk-w").onclick=()=>speak(e.w);
+  $("btn-flip").onclick=()=>{ sndTap(); renderBack(i); };
+}
+function renderBack(i){
+  const e=DATA[i], sc=$("study-card"), sa=$("study-actions");
+  sc.innerHTML=
+    '<div class="tag">'+esc(BOOKS[e.b-1].t)+' ・ '+esc(e.pos)+'</div>'+
+    '<div class="word'+(e.w.length>14?" small":"")+'">'+esc(e.w)+'</div>'+
+    '<button class="spk" id="spk-w2">🔊 発音を聞く</button>'+
+    '<div class="meaning">'+esc(e.m)+'</div>'+
+    '<div class="example">'+esc(e.ex)+'</div><div class="example-ja">'+esc(e.ja)+'</div>'+
+    '<button class="spk" id="spk-e">🔊 例文を聞く</button>';
+  sa.innerHTML='<div class="grade-row">'+
+    '<button class="g-forgot" id="g0">わすれた<small>今日もう一度</small></button>'+
+    '<button class="g-unsure" id="g1">あいまい<small>近々もう一度</small></button>'+
+    '<button class="g-known" id="g2">わかった<small>次は先の日</small></button></div>';
+  $("spk-w2").onclick=()=>speak(e.w);
+  $("spk-e").onclick=()=>speak(e.ex);
+  const doGrade=g=>{
+    grade(i,g);
+    if(g===2){ session.results.g++; sndGood(); }
+    else if(g===1){ session.results.u++; sndTap(); }
+    else{
+      session.results.f++; sndBad();
+      // re-queue later in this session
+      if(!session.isFree || true){
+        const insertAt=Math.min(session.q.length, session.pos+1+5);
+        session.q.splice(insertAt,0,i);
+        session.total+=0; // keep progress based on positions processed
+      }
+    }
+    session.doneIds.add(i);
+    session.pos++;
+    renderCard();
+  };
+  $("g0").onclick=()=>doGrade(0);
+  $("g1").onclick=()=>doGrade(1);
+  $("g2").onclick=()=>doGrade(2);
+}
+function finishSession(){
+  const sc=$("study-card"), sa=$("study-actions");
+  $("study-bar").style.width="100%";
+  $("study-count").textContent="";
+  const wasToday = session && (session.title==="今日の分");
+  sc.innerHTML='<div class="big-done">🎉 おつかれさま！</div>'+
+    '<p style="text-align:center;line-height:1.8">わかった '+session.results.g+' 語 ／ あいまい '+session.results.u+' 語 ／ わすれた '+session.results.f+' 語<br>'+
+    '今日まで '+streak()+' 日連続で学習中です。</p>'+
+    '<p class="note" style="text-align:center">覚えた語は、忘れかけたころにまた出てきます。</p>';
+  sa.innerHTML='<button class="btn" id="btn-done-home">ホームへもどる</button>';
+  $("btn-done-home").onclick=()=>{ sndTap(); show("home"); };
+  const q=todayTotalPlanned();
+  if(wasToday && q.left===0){ confetti(); sndFanfare(); }
+  else sndGood();
+  session=null;
+}
+/* ---------- quiz ---------- */
+let quiz=null;
+function startQuiz(mode){
+  const pool=DATA.map((e,i)=>i).filter(i=>isSeen(i));
+  const src=(pool.length>=8? pool : DATA.map((e,i)=>i));
+  const qs=shuffle(src).slice(0,10);
+  quiz={mode, qs, pos:0, score:0, locked:false};
+  show("quiz");
+  renderQuiz();
+}
+function renderQuiz(){
+  const p=$("quiz-panel");
+  if(!quiz || quiz.pos>=quiz.qs.length){
+    p.innerHTML='<div class="big-done">🎧 クイズ結果</div><p style="text-align:center;font-size:20px;font-weight:800">10問中 '+quiz.score+' 問 正解！</p>'+
+      (quiz.score>=8?'<p style="text-align:center">すばらしい！</p>':quiz.score>=5?'<p style="text-align:center">よくがんばりました。</p>':'<p style="text-align:center">カードで復習すると、もっと覚えられます。</p>')+
+      '<button class="btn" id="q-again">もう一度クイズ</button><button class="btn ghost" id="q-home">ホームへもどる</button>';
+    if(quiz.score>=8){ confetti(); sndFanfare(); } else sndGood();
+    $("q-again").onclick=()=>startQuiz(quiz.mode);
+    $("q-home").onclick=()=>show("home");
+    return;
+  }
+  const i=quiz.qs[quiz.pos], e=DATA[i];
+  const others=shuffle(DATA.map((x,j)=>j).filter(j=>j!==i && DATA[j].b===e.b)).slice(0,3);
+  const cand=shuffle([i].concat(others.length===3?others:shuffle(DATA.map((x,j)=>j).filter(j=>j!==i)).slice(0,3)));
+  const head = quiz.mode==="listen"
+    ? '<div class="quiz-q">🔊 音を聞いて、意味を選ぼう</div><div style="text-align:center"><button class="spk" id="q-spk" style="font-size:18px;padding:12px 22px">🔊 もう一度聞く</button></div>'
+    : '<div class="quiz-q">意味を選ぼう</div><div class="quiz-word">'+esc(e.w)+'</div><div style="text-align:center"><button class="spk" id="q-spk">🔊 発音を聞く</button></div>';
+  p.innerHTML=head+'<div class="choices">'+cand.map(j=>'<button data-j="'+j+'">'+esc(DATA[j].m)+'</button>').join("")+'</div>'+
+    '<div class="quiz-score">'+(quiz.pos+1)+' / 10 問 ・ 正解 '+quiz.score+'</div>';
+  $("q-spk").onclick=()=>speak(e.w);
+  if(quiz.mode==="listen") setTimeout(()=>speak(e.w),350);
+  quiz.locked=false;
+  p.querySelectorAll(".choices button").forEach(btn=>{
+    btn.onclick=()=>{
+      if(quiz.locked) return; quiz.locked=true;
+      const j=Number(btn.dataset.j);
+      if(j===i){ btn.classList.add("right"); quiz.score++; sndGood(); }
+      else{ btn.classList.add("wrong"); sndBad(); p.querySelectorAll(".choices button").forEach(b=>{ if(Number(b.dataset.j)===i) b.classList.add("right"); }); }
+      setTimeout(()=>{ quiz.pos++; renderQuiz(); }, 950);
+    };
+  });
+}
+/* ---------- wordbook ---------- */
+function renderBook(){
+  const sel=$("wb-book");
+  if(!sel.options.length){
+    sel.innerHTML=BOOKS.map(b=>'<option value="'+b.n+'">第'+b.n+'冊：'+esc(b.t)+'</option>').join("");
+  }
+  const b=Number(sel.value||1), q=($("wb-q").value||"").trim().toLowerCase();
+  const hide=$("wb-hide").checked;
+  const list=DATA.map((e,i)=>({e,i})).filter(({e})=>e.b===b && (!q || e.w.toLowerCase().includes(q) || e.m.includes(q)));
+  $("wb-count").textContent=list.length+" 語";
+  $("wb-list").className="wb-list"+(hide?" hide-meanings":"");
+  $("wb-list").innerHTML=list.map(({e,i})=>
+    '<button class="wb-row" data-i="'+i+'"><span class="ww">'+esc(e.w)+'</span><span class="wm">'+esc(e.m)+'</span>'+
+    '<span class="wl bk'+e.b+'">'+(cardOf(i)?(isGraduated(i)?"卒業":"Lv"+cardOf(i).lv):"未学習")+'</span></button>').join("");
+  $("wb-list").querySelectorAll(".wb-row").forEach(row=>{
+    row.onclick=()=>{
+      if(hide && !row.classList.contains("revealed")){ row.classList.add("revealed"); return; }
+      openDetail(Number(row.dataset.i));
+    };
+  });
+}
+function openDetail(i){
+  const e=DATA[i], c=cardOf(i);
+  $("modal").innerHTML=
+    '<div class="tag" style="color:var(--sub);font-size:12px">'+esc(BOOKS[e.b-1].t)+' ・ '+esc(e.pos)+(c?(' ・ Lv'+c.lv+(c.grad?'（卒業）':'')):' ・ 未学習')+'</div>'+
+    '<div class="word">'+esc(e.w)+'</div>'+
+    '<button class="spk" id="m-spk-w">🔊 発音を聞く</button>'+
+    '<div class="meaning">'+esc(e.m)+'</div>'+
+    '<div class="example">'+esc(e.ex)+'</div><div class="example-ja">'+esc(e.ja)+'</div>'+
+    '<button class="spk" id="m-spk-e">🔊 例文を聞く</button>'+
+    '<button class="btn ghost" id="m-close" style="margin-top:16px">閉じる</button>';
+  $("modal-bg").classList.add("on");
+  $("m-spk-w").onclick=()=>speak(e.w);
+  $("m-spk-e").onclick=()=>speak(e.ex);
+  $("m-close").onclick=()=>$("modal-bg").classList.remove("on");
+}
+/* ---------- weak ---------- */
+function weakList(){
+  return DATA.map((e,i)=>i).filter(i=>{ const c=cardOf(i); return c && (c.lap||0)>=2 && !c.grad; });
+}
+function renderWeak(){
+  const wl=weakList();
+  $("weak-list").innerHTML = wl.length
+    ? wl.map(i=>'<button class="wb-row" data-i="'+i+'" style="border:1px solid #f0e7cd;border-radius:10px;margin-bottom:6px;background:#fffdf6"><span class="ww">'+esc(DATA[i].w)+'</span><span class="wm">'+esc(DATA[i].m)+'</span><span class="wl" style="background:#c0392b">忘れた '+cardOf(i).lap+' 回</span></button>').join("")
+    : '<p class="note" style="font-size:14px">いま、苦手ノートは空っぽです。この調子！</p>';
+  $("btn-weak-start").disabled=!wl.length;
+  $("weak-list").querySelectorAll(".wb-row").forEach(r=>{ r.onclick=()=>openDetail(Number(r.dataset.i)); });
+}
+/* ---------- settings ---------- */
+function renderSet(){
+  $("set-daily").value=String(S.settings.daily);
+  $("set-sound").value=S.settings.sound?"1":"0";
+  const now=new Date(), y=now.getFullYear(), mo=now.getMonth();
+  const first=new Date(y,mo,1), days=new Date(y,mo+1,0).getDate();
+  let html=["日","月","火","水","木","金","土"].map(d=>'<div class="dow">'+d+'</div>').join("");
+  for(let k=0;k<first.getDay();k++) html+='<div></div>';
+  for(let d=1;d<=days;d++){
+    const ds=todayStr(new Date(y,mo,d));
+    const h=S.history[ds];
+    const n=h? h.n+h.r : 0;
+    html+='<div class="cell'+(h?" did":"")+(ds===todayStr()?" today":"")+'">'+d+(n?'<span class="n">'+n+'語</span>':"")+'</div>';
+  }
+  $("cal").innerHTML=html;
+}
+/* ---------- wiring ---------- */
+document.querySelectorAll("[data-go]").forEach(b=>{ b.onclick=()=>{ sndTap(); show(b.dataset.go); }; });
+$("btn-start").onclick=()=>{ sndTap(); startSession(todayQueue(), "今日の分"); };
+$("btn-more").onclick=()=>{ sndTap(); startSession(shuffle(DATA.map((e,i)=>i).filter(i=>!isGraduated(i))).slice(0,10), "自由練習", true); };
+$("menu-quiz").onclick=()=>{ sndTap();
+  $("quiz-panel").innerHTML='<div class="quiz-q">どちらのクイズにしますか？</div>'+
+  '<button class="btn blue" id="q-mode-choice">📝 4択クイズ（英単語→意味）</button>'+
+  '<button class="btn gold" id="q-mode-listen">🎧 聞き取りクイズ（音→意味）</button>'+
+  '<p class="note">習った語から出ます。まだ少ないうちは、全体から出題します。</p>';
+  show("quiz");
+  $("q-mode-choice").onclick=()=>startQuiz("choice");
+  $("q-mode-listen").onclick=()=>startQuiz("listen");
+};
+$("menu-book").onclick=()=>{ sndTap(); show("book"); };
+$("menu-weak").onclick=()=>{ sndTap(); show("weak"); };
+$("menu-set").onclick=()=>{ sndTap(); show("set"); };
+$("btn-weak-start").onclick=()=>{ sndTap(); startSession(weakList(), "苦手ノート復習", true); };
+$("wb-book").onchange=renderBook;
+$("wb-q").oninput=renderBook;
+$("wb-hide").onchange=renderBook;
+$("set-daily").onchange=e=>{ S.settings.daily=Number(e.target.value); save(); };
+$("set-sound").onchange=e=>{ S.settings.sound=e.target.value==="1"; save(); };
+$("btn-export").onclick=()=>{
+  const txt=JSON.stringify(S);
+  $("io-text").value=txt;
+  try{
+    const a=document.createElement("a");
+    a.href=URL.createObjectURL(new Blob([txt],{type:"application/json"}));
+    a.download="eitango-pocket-kiroku.json"; a.click();
+    setTimeout(()=>URL.revokeObjectURL(a.href),2000);
+  }catch(e){}
+};
+$("btn-import").onclick=()=>{
+  try{
+    const obj=JSON.parse($("io-text").value);
+    if(!obj || typeof obj!=="object" || !obj.cards) throw new Error("bad");
+    S=Object.assign(freshState(), obj); save(); renderSet(); alert("記録を読み込みました。");
+  }catch(e){ alert("読み込めませんでした。書き出した記録をそのまま貼ってください。"); }
+};
+$("btn-reset").onclick=()=>{
+  if(confirm("学習記録をすべて消します。よろしいですか？")){
+    S=freshState(); save(); renderSet(); alert("記録を消しました。");
+  }
+};
+$("modal-bg").onclick=e=>{ if(e.target===$("modal-bg")) $("modal-bg").classList.remove("on"); };
+rollDay(); save();
+renderHome();
+</script>
+</body>
+</html>
